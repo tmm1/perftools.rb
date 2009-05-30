@@ -19,7 +19,7 @@ google-perftools for ruby code
 
   Profile an existing ruby application without modifying it:
 
-    $ CPUPROFILE=/tmp/my_app_profile ruby -r/path/to/perftools.{bundle,so} my_app.rb
+    $ CPUPROFILE=/tmp/my_app_profile RUBYOPT="-r`gem which perftools | tail -1`" ruby my_app.rb
 
 
 === Reporting
