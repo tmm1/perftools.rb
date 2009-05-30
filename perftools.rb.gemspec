@@ -12,11 +12,14 @@ spec = Gem::Specification.new do |s|
 
   s.has_rdoc = false
   s.extensions = 'ext/extconf.rb'
+  s.bindir = 'bin'
+  s.executables << 'pprof.rb'
 
   # ruby -rpp -e' pp `git ls-files`.split("\n") '
   s.files = [
     "README",
     "perftools.rb.gemspec",
+    "bin/pprof.rb",
     "ext/extconf.rb",
     "ext/perftools.c",
     "patches/ruby.patch",

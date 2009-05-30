@@ -9,6 +9,22 @@ google-perftools for ruby code
   end
 
 
+=== Reporting
+
+  pprof.rb --text /tmp/add_numbers_profile
+
+  pprof.rb --pdf /tmp/add_numbers_profile > /tmp/add_numbers_profile.pdf
+
+  pprof.rb --gif /tmp/add_numbers_profile > /tmp/add_numbers_profile.gif
+
+  pprof.rb --callgrind /tmp/add_numbers_profile > /tmp/add_numbers_profile.grind
+  kcachegrind /tmp/add_numbers_profile.grind
+
+  pprof.rb --gif --focus=Integer /tmp/add_numbers_profile > /tmp/add_numbers_custom.gif
+
+  pprof.rb --text --ignore=require /tmp/add_numbers_profile
+
+
 === Installation
 
   You'll need a patched version of Ruby 1.8:
@@ -34,3 +50,17 @@ google-perftools for ruby code
   Install the perftools.rb gem, which will download and compile google-perftools for you:
 
     /opt/ruby/-profiling/bin/gem install perftools.rb
+
+
+=== TODO
+
+  * Add support for heap profiling to find memory leaks
+
+
+=== Resources
+
+  Google Perftools
+    http://code.google.com/p/google-perftools/
+
+  Analyzing profiles and interpreting different output formats
+    http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html#pprof

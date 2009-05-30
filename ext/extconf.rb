@@ -26,6 +26,12 @@ Dir.chdir("src") do
     end
   end
 
+  unless File.exists?('../bin/pprof')
+    Dir.chdir(dir) do
+      FileUtils.cp 'src/pprof', '../../../bin/'
+    end
+  end
+
   unless File.exists?('../libprofiler.a')
     Dir.chdir(dir) do
       xsystem("./configure --disable-heap-profiler --disable-heap-checker --disable-minimal")
