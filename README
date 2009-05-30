@@ -17,7 +17,7 @@ google-perftools for ruby code
     tar zxvf ruby-1.8....
     cd ruby-1.8....
 
-    wget http://github.com/tmm1/perftools.rb/blob/master/patches/ruby.patch
+    wget http://github.com/tmm1/perftools.rb/raw/master/patches/ruby.patch
     patch -p1 ruby.patch
 
     ./configure --prefix=/opt/ruby-profiling
