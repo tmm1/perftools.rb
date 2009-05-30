@@ -6,6 +6,8 @@ require 'net/http'
 perftools = "google-perftools-1.2.tar.gz"
 dir = File.basename(perftools, '.tar.gz')
 
+Logging.message "(I'm about to download and compile google-perftools.. this will definitely take a while)"
+
 FileUtils.mkdir("src") unless File.exists?("src")
 Dir.chdir("src") do
   Net::HTTP.start("google-perftools.googlecode.com") { |http|
