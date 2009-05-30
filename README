@@ -3,10 +3,23 @@ google-perftools for ruby code
 
 === Usage
 
-  require 'perftools'
-  PerfTools::CpuProfiler.start("/tmp/add_numbers_profile") do
+  Run the profiler with a block:
+
+    require 'perftools'
+    PerfTools::CpuProfiler.start("/tmp/add_numbers_profile") do
+      5_000_000.times{ 1+2+3+4+5 }
+    end
+
+  Start and stop the profiler manually:
+
+    require 'perftools'
+    PerfTools::CpuProfiler.start("/tmp/add_numbers_profile")
     5_000_000.times{ 1+2+3+4+5 }
-  end
+    PerfTools::CpuProfiler.stop
+
+  Profile an existing ruby application without modifying it:
+
+    $ CPUPROFILE=/tmp/my_app_profile ruby -r/path/to/perftools.{bundle,so} my_app.rb
 
 
 === Reporting
