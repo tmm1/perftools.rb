@@ -1,0 +1,293 @@
+diff --git a/src/pprof b/src/pprof
+index f23786d..21ccd12 100755
+--- a/src/pprof
++++ b/src/pprof
+@@ -504,7 +504,8 @@ sub Main() {
+   FetchDynamicProfiles();
+     
+   # Read one profile, pick the last item on the list
+-  my $data = ReadProfile($main::prog, pop(@main::profile_files));
++  my $fname = pop(@main::profile_files);
++  my $data = ReadProfile($main::prog, $fname);
+   my $profile = $data->{profile};
+   my $pcs = $data->{pcs};
+   my $libs = $data->{libs};   # Info about main program and shared libraries
+@@ -536,6 +537,17 @@ sub Main() {
+     $symbols = ExtractSymbols($libs, $pcs);
+   }
+ 
++  if (-e "$fname.symbols") {
++    open(SYMBOLS, "<$fname.symbols");
++    while(<SYMBOLS>){
++      chop;
++      if (m/(.+?)\s*:\s*(.*)/){
++        $symbols->{$1}[0] = $2;
++      }
++    }
++    close(SYMBOLS);
++  }
++
+   my $calls = ExtractCalls($symbols, $profile);
+ 
+   # Remove uniniteresting stack items
+diff --git a/src/profile-handler.cc b/src/profile-handler.cc
+index 0a9f54c..5b99a81 100644
+--- a/src/profile-handler.cc
++++ b/src/profile-handler.cc
+@@ -263,6 +263,11 @@ ProfileHandler::~ProfileHandler() {
+ void ProfileHandler::RegisterThread() {
+   SpinLockHolder cl(&control_lock_);
+ 
++#ifdef BUILD_FOR_RUBY
++  timer_sharing_ = TIMERS_SHARED;
++  if (callback_count_ > 0 && !IsTimerRunning())
++    StartTimer();
++#else
+   // We try to detect whether timers are being shared by setting a
+   // timer in the first call to this function, then checking whether
+   // it's set in the second call.
+@@ -304,6 +309,7 @@ void ProfileHandler::RegisterThread() {
+       StartTimer();
+       break;
+   }
++#endif
+ }
+ 
+ ProfileHandlerToken* ProfileHandler::RegisterCallback(
+diff --git a/src/profiledata.cc b/src/profiledata.cc
+index 5f2531b..e6240d9 100644
+--- a/src/profiledata.cc
++++ b/src/profiledata.cc
+@@ -56,6 +56,19 @@ const int ProfileData::kAssociativity;
+ const int ProfileData::kBuckets;
+ const int ProfileData::kBufferLength;
+ 
++#ifdef BUILD_FOR_RUBY
++extern "C" {
++  typedef unsigned long ID;
++  typedef unsigned long VALUE;
++
++  void rb_gc();
++  const char *rb_id2name(ID);
++  const char *rb_class2name(VALUE);
++}
++
++#include <set>
++#endif
++
+ ProfileData::Options::Options()
+     : frequency_(1) {
+ }
+@@ -63,17 +76,33 @@ ProfileData::Options::Options()
+ // This function is safe to call from asynchronous signals (but is not
+ // re-entrant).  However, that's not part of its public interface.
+ void ProfileData::Evict(const Entry& entry) {
++#ifdef BUILD_FOR_RUBY
++  const int d = entry.depth == 1 ? 1 : entry.depth/3;
++#else
+   const int d = entry.depth;
++#endif
+   const int nslots = d + 2;     // Number of slots needed in eviction buffer
++
+   if (num_evicted_ + nslots > kBufferLength) {
+     FlushEvicted();
+     assert(num_evicted_ == 0);
+     assert(nslots <= kBufferLength);
+   }
++
+   evict_[num_evicted_++] = entry.count;
+   evict_[num_evicted_++] = d;
++
++#ifdef BUILD_FOR_RUBY
++  if (entry.depth > 1) {
++    for (int n=0; n<entry.depth; n+=3)
++      evict_[num_evicted_++] = entry.stack[n] + entry.stack[n+1] + entry.stack[n+2];
++  } else if (entry.depth == 1) {
++    evict_[num_evicted_++] = entry.stack[0];
++  }
++#else
+   memcpy(&evict_[num_evicted_], entry.stack, d * sizeof(Slot));
+   num_evicted_ += d;
++#endif
+ }
+ 
+ ProfileData::ProfileData()
+@@ -85,6 +114,7 @@ ProfileData::ProfileData()
+       evictions_(0),
+       total_bytes_(0),
+       fname_(0),
++      sym_fname_(0),
+       start_time_(0) {
+ }
+ 
+@@ -101,6 +131,13 @@ bool ProfileData::Start(const char* fname,
+     return false;
+   }
+ 
++#ifdef BUILD_FOR_RUBY
++  int len = strlen(fname);
++  sym_fname_ = (char*)malloc((len+9) * sizeof(char));
++  strncpy(sym_fname_, fname, len);
++  strcpy(sym_fname_+len, ".symbols");
++#endif
++
+   start_time_ = time(NULL);
+   fname_ = strdup(fname);
+ 
+@@ -166,16 +203,47 @@ void ProfileData::Stop() {
+     return;
+   }
+ 
++#ifdef BUILD_FOR_RUBY
++  FILE *symbols;
++  symbols = fopen(sym_fname_, "w");
++  fprintf(symbols, "%0*lx: garbage_collector\n", sizeof(unsigned long)*2, (ID)rb_gc);
++
++  std::set<ID> known_symbols;
++#endif
++
+   // Move data from hash table to eviction buffer
+   for (int b = 0; b < kBuckets; b++) {
+     Bucket* bucket = &hash_[b];
+     for (int a = 0; a < kAssociativity; a++) {
+       if (bucket->entry[a].count > 0) {
+-        Evict(bucket->entry[a]);
++        Entry e = bucket->entry[a];
++        Evict(e);
++#ifdef BUILD_FOR_RUBY
++        if (e.depth > 1)
++          for (int n=0; n<e.depth; n+=3) {
++            ID sym = e.stack[n] + e.stack[n+1] + e.stack[n+2];
++
++            if (known_symbols.find(sym) == known_symbols.end()) {
++              fprintf(symbols, "%0*lx: ", sizeof(unsigned long)*2, sym);
++
++              if (e.stack[n])
++                fprintf(symbols, "%s.", rb_class2name(e.stack[n]));
++              else
++                fprintf(symbols, "%s#", rb_class2name(e.stack[n+1]));
++
++              fprintf(symbols, "%s\n", rb_id2name(e.stack[n+2]));
++              known_symbols.insert(sym);
++            }
++          }
++#endif
+       }
+     }
+   }
+ 
++#ifdef BUILD_FOR_RUBY
++  fclose(symbols);
++#endif
++
+   if (num_evicted_ + 3 > kBufferLength) {
+     // Ensure there is enough room for end of data marker
+     FlushEvicted();
+@@ -211,6 +279,10 @@ void ProfileData::Reset() {
+   num_evicted_ = 0;
+   free(fname_);
+   fname_ = 0;
++#ifdef BUILD_FOR_RUBY
++  free(sym_fname_);
++  sym_fname_ = 0;
++#endif
+   start_time_ = 0;
+ 
+   out_ = -1;
+diff --git a/src/profiledata.h b/src/profiledata.h
+index da7ea9e..67c463d 100644
+--- a/src/profiledata.h
++++ b/src/profiledata.h
+@@ -169,6 +169,7 @@ class ProfileData {
+   int           evictions_;     // How many evictions
+   size_t        total_bytes_;   // How much output
+   char*         fname_;         // Profile file name
++  char*         sym_fname_;     // Symbol file name
+   time_t        start_time_;    // Start time, or 0
+ 
+   // Move 'entry' to the eviction buffer.
+diff --git a/src/profiler.cc b/src/profiler.cc
+index c51c7b2..21c7669 100644
+--- a/src/profiler.cc
++++ b/src/profiler.cc
+@@ -63,6 +63,12 @@ typedef int ucontext_t;   // just to quiet the compiler, mostly
+ #include "conflict-signal.h"          /* used on msvc machines */
+ #endif
+ 
++#ifdef BUILD_FOR_RUBY
++extern "C" {
++  int rb_stack_trace(void**,int);
++}
++#endif
++
+ using std::string;
+ 
+ // Collects up all profile data.  This is a singleton, which is
+@@ -261,6 +267,9 @@ void CpuProfiler::prof_handler(int sig, siginfo_t*, void* signal_ucontext,
+       (*instance->filter_)(instance->filter_arg_)) {
+     void* stack[ProfileData::kMaxStackDepth];
+ 
++#ifdef BUILD_FOR_RUBY
++    int depth = rb_stack_trace(stack, arraysize(stack));
++#else
+     // The top-most active routine doesn't show up as a normal
+     // frame, but as the "pc" value in the signal handler context.
+     stack[0] = GetPC(*reinterpret_cast<ucontext_t*>(signal_ucontext));
+@@ -274,8 +283,10 @@ void CpuProfiler::prof_handler(int sig, siginfo_t*, void* signal_ucontext,
+     int depth = GetStackTraceWithContext(stack + 1, arraysize(stack) - 1,
+                                          2, signal_ucontext);
+     depth++;  // To account for pc value in stack[0];
++#endif
+ 
+-    instance->collector_.Add(depth, stack);
++    if (depth > 0)
++      instance->collector_.Add(depth, stack);
+   }
+ }
+ 
+diff --git a/src/stacktrace.cc b/src/stacktrace.cc
+index d158eea..e4132fe 100644
+--- a/src/stacktrace.cc
++++ b/src/stacktrace.cc
+@@ -52,6 +52,7 @@
+ // correctly when GetStackTrace() is called with max_depth == 0.
+ // Some code may do that.
+ 
++#ifndef BUILD_FOR_RUBY
+ #include "config.h"
+ #include <google/stacktrace.h>
+ #include "stacktrace_config.h"
+@@ -69,3 +70,4 @@
+ #else
+ # error Cannot calculate stack trace: will need to write for your environment
+ #endif
++#endif
+\ No newline at end of file
+diff --git a/Makefile.in b/Makefile.in
+index 1247b91..45179f3 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -989,13 +989,13 @@ AUTOMAKE = @AUTOMAKE@
+ AWK = @AWK@
+ CC = @CC@
+ CCDEPMODE = @CCDEPMODE@
+-CFLAGS = @CFLAGS@
++CFLAGS = @CFLAGS@ -DBUILD_FOR_RUBY
+ CPP = @CPP@
+ CPPFLAGS = @CPPFLAGS@
+ CXX = @CXX@
+ CXXCPP = @CXXCPP@
+ CXXDEPMODE = @CXXDEPMODE@
+-CXXFLAGS = @CXXFLAGS@
++CXXFLAGS = @CXXFLAGS@ -DBUILD_FOR_RUBY
+ CYGPATH_W = @CYGPATH_W@
+ DEFS = @DEFS@
+ DEPDIR = @DEPDIR@
+@@ -1243,6 +1243,7 @@ TESTS = low_level_alloc_unittest $(am__append_9) $(am__append_12) \
+       realloc_unittest stack_trace_table_test \
+       thread_dealloc_unittest $(am__append_25) $(am__append_30) \
+       $(am__append_33) $(am__append_41)
++TESTS = ''
+# TESTS_ENVIRONMENT sets environment variables for when you run unittest.
+# We always get "srcdir" set for free.
+# We'll add to this later, on a library-by-library basis.
