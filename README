@@ -38,6 +38,12 @@ google-perftools for ruby code
   pprof.rb --text --ignore=require /tmp/add_numbers_profile
 
 
+=== Sample profiles
+
+  http://tmm1.net/redis-rb.gif vs http://tmm1.net/redis-rb-notimeout.gif
+  http://tmm1.net/rails.gif    vs http://tmm1.net/merb.gif
+
+
 === Installation
 
   You'll need a patched version of Ruby 1.8:
