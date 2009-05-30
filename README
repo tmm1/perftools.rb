@@ -1,0 +1,36 @@
+google-perftools for ruby code
+  (c) 2009 Aman Gupta (tmm1)
+
+=== Usage
+
+  require 'perftools'
+  PerfTools::CpuProfiler.start("/tmp/add_numbers_profile") do
+    5_000_000.times{ 1+2+3+4+5 }
+  end
+
+
+=== Installation
+
+  You'll need a patched version of Ruby 1.8:
+
+    wget http://.../ruby-1.8.XpYYY.tar.gz
+    tar zxvf ruby-1.8....
+    cd ruby-1.8....
+
+    wget http://github.com/tmm1/perftools.rb/blob/master/patches/ruby.patch
+    patch -p1 ruby.patch
+
+    ./configure --prefix=/opt/ruby-profiling
+    make
+    sudo make install
+
+  Install rubygems:
+
+    wget http://rubyforge.org/frs/download.php/57643/rubygems-1.3.4.tgz
+    tar zxvf rubygems-1.3.4.tgz
+    cd rubygems-1.3.4
+    /opt/ruby-profiling/bin/ruby setup.rb
+
+  Install the perftools.rb gem, which will download and compile google-perftools for you:
+
+    /opt/ruby/-profiling/bin/gem install perftools.rb
