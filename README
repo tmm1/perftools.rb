@@ -51,20 +51,14 @@ google-perftools for ruby code
 
   pprof.rb --gif
 
-    EventMachine + epoll + Ruby threads
-      (before http://timetobleed.com/6-line-eventmachine-bugfix-2x-faster-gc-1300-requestssec/)
+    Simple require 'rubygems' profile
 
-      http://github.com/tmm1/perftools.rb/blob/master/examples/eventmachine-epoll+nothreads.gif
-      http://github.com/tmm1/perftools.rb/blob/master/examples/eventmachine-epoll+threads.gif
+      http://github.com/tmm1/perftools.rb/blob/master/examples/rubygems.gif
 
     Comparing redis-rb with and without SystemTimer based socket timeouts
 
       http://github.com/tmm1/perftools.rb/blob/master/examples/redis-rb.gif
       http://github.com/tmm1/perftools.rb/blob/master/examples/redis-rb-notimeout.gif
-
-    Simple require 'rubygems' profile
-
-      http://github.com/tmm1/perftools.rb/blob/master/examples/rubygems.gif
 
     Sinatra vs. Merb vs. Rails
 
@@ -72,7 +66,13 @@ google-perftools for ruby code
       http://github.com/tmm1/perftools.rb/blob/master/examples/merb.gif
       http://github.com/tmm1/perftools.rb/blob/master/examples/rails.gif
 
-    C-level profile of the ruby interpreter (using unpatched google-perftools)
+    C-level profile of EventMachine + epoll + Ruby threads
+      (before http://timetobleed.com/6-line-eventmachine-bugfix-2x-faster-gc-1300-requestssec/)
+
+      http://github.com/tmm1/perftools.rb/blob/master/examples/eventmachine-epoll+nothreads.gif
+      http://github.com/tmm1/perftools.rb/blob/master/examples/eventmachine-epoll+threads.gif
+
+    C-level profile of the ruby interpreter
       (12% re_match_exec is caused by excessive use of rb_str_sub_bang by Date.parse,
        fixed using the ThirdBase gem)
 
