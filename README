@@ -35,25 +35,60 @@ google-perftools for ruby code
 
   pprof.rb --gif --focus=Integer /tmp/add_numbers_profile > /tmp/add_numbers_custom.gif
 
-  pprof.rb --text --ignore=require /tmp/add_numbers_profile
+  pprof.rb --text --ignore=Gem /tmp/my_app_profile
 
 
-=== Sample profiles
+  For more options, see http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html#pprof
 
-  http://tmm1.net/redis-rb.gif vs http://tmm1.net/redis-rb-notimeout.gif
-  http://tmm1.net/rails.gif    vs http://tmm1.net/merb.gif
+
+=== Examples
+
+  pprof.rb --text
+
+    Total: 1735 samples
+        1487  85.7%  85.7%     1735 100.0% Integer#times
+         248  14.3% 100.0%      248  14.3% Fixnum#+
+
+  pprof.rb --gif
+
+    EventMachine + epoll + Ruby threads
+      (before http://timetobleed.com/6-line-eventmachine-bugfix-2x-faster-gc-1300-requestssec/)
+
+      http://github.com/tmm1/perftools.rb/blob/master/examples/eventmachine-epoll+nothreads.gif
+      http://github.com/tmm1/perftools.rb/blob/master/examples/eventmachine-epoll+threads.gif
+
+    Comparing redis-rb with and without SystemTimer based socket timeouts
+
+      http://github.com/tmm1/perftools.rb/blob/master/examples/redis-rb.gif
+      http://github.com/tmm1/perftools.rb/blob/master/examples/redis-rb-notimeout.gif
+
+    Simple require 'rubygems' profile
+
+      http://github.com/tmm1/perftools.rb/blob/master/examples/rubygems.gif
+
+    Sinatra vs. Merb vs. Rails
+
+      http://github.com/tmm1/perftools.rb/blob/master/examples/sinatra.gif
+      http://github.com/tmm1/perftools.rb/blob/master/examples/merb.gif
+      http://github.com/tmm1/perftools.rb/blob/master/examples/rails.gif
+
+    C-level profile of the ruby interpreter (using unpatched google-perftools)
+      (12% re_match_exec is caused by excessive use of rb_str_sub_bang by Date.parse,
+       fixed using the ThirdBase gem)
+
+      http://github.com/tmm1/perftools.rb/blob/master/examples/ruby_interpreter.gif
 
 
 === Installation
 
   You'll need a patched version of Ruby 1.8:
 
-    wget http://.../ruby-1.8.XpYYY.tar.gz
-    tar zxvf ruby-1.8....
-    cd ruby-1.8....
+    wget ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p368.tar.gz
+    tar zxvf ruby-1.8.6-p368.tar.gz
+    cd ruby-1.8.6-p368
 
     wget http://github.com/tmm1/perftools.rb/raw/master/patches/ruby.patch
-    patch -p1 ruby.patch
+    patch -p1 < ruby.patch
 
     ./configure --prefix=/opt/ruby-profiling
     make
@@ -76,7 +111,7 @@ google-perftools for ruby code
 
 === TODO
 
-  * Add support for heap profiling to find memory leaks
+  * Add support for heap profiling to find memory leaks (PerfTools::HeapProfiler)
 
 
 === Resources
