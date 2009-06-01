@@ -21,6 +21,7 @@ Dir.chdir("src") do
     xsystem("tar zxvf #{perftools}")
     Dir.chdir(dir) do
       xsystem("patch -p1 < ../../../patches/perftools.patch")
+      xsystem("patch -p1 < ../../../patches/perftools-static.patch")
       xsystem("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
       xsystem("patch -p1 < ../../../patches/perftools-debug.patch") if ENV['DEBUG']
     end
@@ -34,7 +35,7 @@ Dir.chdir("src") do
 
   unless File.exists?('../libprofiler.a')
     Dir.chdir(dir) do
-      xsystem("./configure --disable-heap-profiler --disable-heap-checker --disable-minimal")
+      xsystem("./configure --disable-heap-profiler --disable-heap-checker --disable-minimal --disable-shared")
       xsystem("make")
       FileUtils.cp '.libs/libprofiler.a', '../../'
     end

@@ -1,0 +1,27 @@
+diff --git a/Makefile.in b/Makefile.in
+index 1247b91..e7c5bca 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -3736,14 +3736,14 @@ uninstall-man: uninstall-man1
+ # (since it does work only in global constructors and destructors).
+ # We just replace the .a with an 'ld-r-ized' version under libtool's
+ # nose.
+-@WITH_CPU_PROFILER_TRUE@libprofiler.o: libprofiler.la $(libprofiler_la_OBJECTS) $(libprofiler_la_DEPENDENCIES) $(libprofiler_la_LIBADD)
+-@WITH_CPU_PROFILER_TRUE@	$(CXXLINK) $(libprofiler_la_OBJECTS) $(libprofiler_la_LIBADD)
+-@WITH_CPU_PROFILER_TRUE@	cp -f "$@" .libs/libprofiler.a
+-@WITH_CPU_PROFILER_TRUE@profiler_unittest.sh$(EXEEXT): $(top_srcdir)/$(profiler_unittest_sh_SOURCES) \
+-@WITH_CPU_PROFILER_TRUE@                               profiler1_unittest profiler2_unittest \
+-@WITH_CPU_PROFILER_TRUE@                               profiler3_unittest profiler4_unittest
+-@WITH_CPU_PROFILER_TRUE@	rm -f $@
+-@WITH_CPU_PROFILER_TRUE@	cp -p $(top_srcdir)/$(profiler_unittest_sh_SOURCES) $@
++# @WITH_CPU_PROFILER_TRUE@libprofiler.o: libprofiler.la $(libprofiler_la_OBJECTS) $(libprofiler_la_DEPENDENCIES) $(libprofiler_la_LIBADD)
++# @WITH_CPU_PROFILER_TRUE@	$(CXXLINK) $(libprofiler_la_OBJECTS) $(libprofiler_la_LIBADD)
++# @WITH_CPU_PROFILER_TRUE@	cp -f "$@" .libs/libprofiler.a
++# @WITH_CPU_PROFILER_TRUE@profiler_unittest.sh$(EXEEXT): $(top_srcdir)/$(profiler_unittest_sh_SOURCES) \
++# @WITH_CPU_PROFILER_TRUE@                               profiler1_unittest profiler2_unittest \
++# @WITH_CPU_PROFILER_TRUE@                               profiler3_unittest profiler4_unittest
++# @WITH_CPU_PROFILER_TRUE@	rm -f $@
++# @WITH_CPU_PROFILER_TRUE@	cp -p $(top_srcdir)/$(profiler_unittest_sh_SOURCES) $@
+ 
+ rpm: dist-gzip packages/rpm.sh packages/rpm/rpm.spec
+ 	@cd packages && ./rpm.sh ${PACKAGE} ${VERSION}
