@@ -46,5 +46,10 @@ Dir.chdir('src') do
   end
 end
 
+case RUBY_PLATFORM
+when /darwin/, /linux/
+  CONFIG['LDSHARED'] = "$(CXX) " + CONFIG['LDSHARED'].split[1..-1].join(' ')
+end
+
 $libs = append_library($libs, 'profiler')
 create_makefile 'perftools'
