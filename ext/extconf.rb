@@ -35,7 +35,7 @@ Dir.chdir("src") do
 
   unless File.exists?('../libprofiler.a')
     Dir.chdir(dir) do
-      xsystem("./configure --disable-heap-profiler --disable-heap-checker --disable-minimal --disable-shared")
+      xsystem("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
       xsystem("make")
       FileUtils.cp '.libs/libprofiler.a', '../../'
     end
