@@ -23,7 +23,7 @@ Dir.chdir("src") do
       xsystem("patch -p1 < ../../../patches/perftools.patch")
       xsystem("patch -p1 < ../../../patches/perftools-static.patch")
       xsystem("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
-      xsystem("patch -p1 < ../../../patches/perftools-debug.patch") if ENV['DEBUG']
+      xsystem("patch -p1 < ../../../patches/perftools-debug.patch")# if ENV['DEBUG']
     end
   end
 
