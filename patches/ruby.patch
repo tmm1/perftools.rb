@@ -19,7 +19,7 @@ index 4989aac..51fb0e5 100644
 +  if (max_depth == 0) return 0;
 +  // if (rb_prohibit_interrupt || !rb_trap_immediate) return 0;
 +
-+  if (rb_in_gc()) {
++  if (rb_during_gc()) {
 +    result[0] = rb_gc;
 +    return 1;
 +  }
@@ -70,15 +70,3 @@ index 4989aac..51fb0e5 100644
  /*
   *  call-seq:
   *     caller(start=1)    => array
-diff --git a/gc.c b/gc.c
-index f881b9b..e5074e8 100644
---- a/gc.c
-+++ b/gc.c
-@@ -211,6 +211,7 @@ static int during_gc;
- static int need_call_final = 0;
- static st_table *finalizer_table = 0;
- 
-+int rb_in_gc(){ return during_gc; }
- 
- /*
-  *  call-seq:
