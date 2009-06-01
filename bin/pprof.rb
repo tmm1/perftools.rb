@@ -1,3 +1,3 @@
-#!/bin/sh
-# XXX assuming that we're going to be run from inside the gem installation
-`dirname $0`/pprof `which ruby` $*
+#!/usr/bin/env ruby
+cmd = "#{File.dirname(__FILE__)}/pprof #{`which ruby`.strip} #{ARGV.join(" ")}"
+exec(cmd)
