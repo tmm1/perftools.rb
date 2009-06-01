@@ -283,11 +283,20 @@ index 1247b91..45179f3 100644
  CYGPATH_W = @CYGPATH_W@
  DEFS = @DEFS@
  DEPDIR = @DEPDIR@
-@@ -1243,6 +1243,7 @@ TESTS = low_level_alloc_unittest $(am__append_9) $(am__append_12) \
-       realloc_unittest stack_trace_table_test \
-       thread_dealloc_unittest $(am__append_25) $(am__append_30) \
-       $(am__append_33) $(am__append_41)
-+TESTS = ''
-# TESTS_ENVIRONMENT sets environment variables for when you run unittest.
-# We always get "srcdir" set for free.
-# We'll add to this later, on a library-by-library basis.
+diff --git a/src/stacktrace_with_context.cc b/src/stacktrace_with_context.cc
+index f9fc28f..beb7562 100644
+--- a/src/stacktrace_with_context.cc
++++ b/src/stacktrace_with_context.cc
+@@ -41,6 +41,7 @@
+ // may inline this code anyway. Let's hope they respect
+ // ATTRIBUTE_NOINLINE.
+ 
++#ifndef BUILD_FOR_RUBY
+ #include "config.h"
+ #include <google/stacktrace.h>
+ #include "stacktrace_config.h"
+@@ -59,3 +60,4 @@ int GetStackTraceWithContext(void** result, int max_depth,
+   return GetStackTrace(result, max_depth, skip_count + 1);
+ }
+ #endif
++#endif
