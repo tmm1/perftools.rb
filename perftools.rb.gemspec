@@ -1,9 +1,9 @@
 spec = Gem::Specification.new do |s|
   s.name = 'perftools.rb'
-  s.version = '0.1.0'
-  s.date = '2009-05-30'
+  s.version = '0.1.1'
+  s.date = '2009-06-01'
   s.summary = 'google-perftools for ruby code'
-  s.description = s.summary
+  s.description = 'A sampling profiler for ruby code based on patches to google-perftools'
 
   s.homepage = "http://github.com/tmm1/perftools.rb"
 
@@ -15,16 +15,17 @@ spec = Gem::Specification.new do |s|
   s.bindir = 'bin'
   s.executables << 'pprof.rb'
 
-  # ruby -rpp -e' pp `git ls-files`.split("\n") '
+  # ruby -rpp -e' pp `git ls-files | grep -v examples`.split("\n") '
   s.files = [
     "README",
-    "perftools.rb.gemspec",
     "bin/pprof.rb",
     "ext/extconf.rb",
     "ext/perftools.c",
-    "patches/ruby.patch",
-    "patches/perftools.patch",
+    "patches/perftools-debug.patch",
     "patches/perftools-osx.patch",
-    "patches/perftools-debug.patch"
+    "patches/perftools-static.patch",
+    "patches/perftools.patch",
+    "patches/ruby.patch",
+    "perftools.rb.gemspec"
   ]
 end
