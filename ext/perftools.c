@@ -1,4 +1,64 @@
 #include <ruby.h>
+#include <node.h>
+#include <env.h>
+
+int
+rb_stack_trace(void** result, int max_depth)
+{
+  int depth = 0;
+  struct FRAME *frame = ruby_frame;
+  NODE *n;
+
+  if (max_depth == 0) return 0;
+  // if (rb_prohibit_interrupt || !rb_trap_immediate) return 0;
+
+  if (rb_during_gc()) {
+    result[0] = rb_gc;
+    return 1;
+  }
+
+  if (frame->last_func == ID_ALLOCATOR) {
+    frame = frame->prev;
+  }
+
+  if (frame->last_func) {
+    VALUE klass = frame->last_class;
+    // if (BUILTIN_TYPE(klass) == T_ICLASS)
+    //   klass = RBASIC(klass)->klass;
+
+    if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(frame->self) == T_CLASS || BUILTIN_TYPE(frame->self) == T_MODULE))
+      result[depth++] = (void*) frame->self;
+    else
+      result[depth++] = 0;
+
+    result[depth++] = (void*) klass;
+    result[depth++] = (void*) frame->last_func;
+  }
+
+  for (; frame && (n = frame->node); frame = frame->prev) {
+    if (frame->prev && frame->prev->last_func) {
+      if (frame->prev->node == n) {
+        if (frame->prev->last_func == frame->last_func) continue;
+      }
+
+      if (depth+3 > max_depth) break;
+
+      VALUE klass = frame->prev->last_class;
+      // if (BUILTIN_TYPE(klass) == T_ICLASS)
+      //   klass = RBASIC(klass)->klass;
+
+      if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(frame->prev->self) == T_CLASS || BUILTIN_TYPE(frame->prev->self) == T_MODULE))
+        result[depth++] = (void*) frame->prev->self;
+      else
+        result[depth++] = 0;
+
+      result[depth++] = (void*) klass;
+      result[depth++] = (void*) frame->prev->last_func;
+    }
+  }
+
+  return depth;
+}
 
 static VALUE cPerfTools;
 static VALUE cCpuProfiler;

@@ -81,32 +81,16 @@ google-perftools for ruby code
 
 === Installation
 
-  You'll need a patched version of Ruby 1.8:
-
-    wget ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p368.tar.gz
-    tar zxvf ruby-1.8.6-p368.tar.gz
-    cd ruby-1.8.6-p368
-
-    wget http://github.com/tmm1/perftools.rb/raw/master/patches/ruby.patch
-    patch -p1 < ruby.patch
-
-    ./configure --prefix=/opt/ruby-profiling
-    make
-    sudo make install
-
-  Install rubygems:
-
-    wget http://rubyforge.org/frs/download.php/57643/rubygems-1.3.4.tgz
-    tar zxvf rubygems-1.3.4.tgz
-    cd rubygems-1.3.4
-    /opt/ruby-profiling/bin/ruby setup.rb
-
-  Install the perftools.rb gem, which will download and compile google-perftools for you:
+  Simply install the perftools.rb gem, which will download and compile google-perftools for you:
 
     git clone git://github.com/tmm1/perftools.rb
     cd perftools.rb
     gem build perftools.rb.gemspec
-    /opt/ruby-profiling/bin/gem install perftools.rb
+    gem install perftools.rb
+
+  Or from github:
+
+    gem install -s http://gems.github.com tmm1-perftools.rb
 
 
 === Advantages over ruby-prof
@@ -118,7 +102,7 @@ google-perftools for ruby code
 
 === Profiling the Ruby VM and C extensions
 
-  To profile C code, simply download and build perftools (libunwind or ./configure --enable-frame-pointers required on x86_64):
+  To profile C code, download and build an unpatched perftools (libunwind or ./configure --enable-frame-pointers required on x86_64):
 
     wget http://google-perftools.googlecode.com/files/google-perftools-1.2.tar.gz
     tar zxvf google-perftools-1.2.tar.gz
