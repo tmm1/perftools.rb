@@ -2,20 +2,24 @@ require 'mkmf'
 require 'fileutils'
 require 'net/http'
 
-# http://google-perftools.googlecode.com/files/google-perftools-1.2.tar.gz
-perftools = "google-perftools-1.2.tar.gz"
+url = 'http://google-perftools.googlecode.com/files/google-perftools-1.2.tar.gz'
+perftools = File.basename(url)
 dir = File.basename(perftools, '.tar.gz')
 
 Logging.message "(I'm about to download and compile google-perftools.. this will definitely take a while)"
 
-FileUtils.mkdir("src") unless File.exists?("src")
-Dir.chdir("src") do
-  Net::HTTP.start("google-perftools.googlecode.com") { |http|
-    resp = http.get("/files/#{perftools}")
-    open(perftools, "wb") { |file|
-      file.write(resp.body)
-    }
-  } unless File.exists?(perftools)
+FileUtils.mkdir_p('src')
+
+Dir.chdir('src') do
+  unless File.exists?(perftools)
+    Net::HTTP.get_response(URI(url)) do |res|
+      File.open(perftools, 'wb') do |out|
+        res.read_body do |chunk|
+          out.write(chunk)
+        end
+      end
+    end
+  end
 
   unless File.exists?(dir)
     xsystem("tar zxvf #{perftools}")
