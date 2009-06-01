@@ -109,9 +109,37 @@ google-perftools for ruby code
     /opt/ruby-profiling/bin/gem install perftools.rb
 
 
+=== Advantages over ruby-prof
+
+  Sampling profiler
+
+    perftools samples your process using setitimer() so it can be used in production with minimal overhead.
+
+
+=== Profiling the Ruby VM and C extensions
+
+  To profile C code, simply download and build perftools (libunwind or ./configure --enable-frame-pointers required on x86_64):
+
+    wget http://google-perftools.googlecode.com/files/google-perftools-1.2.tar.gz
+    tar zxvf google-perftools-1.2.tar.gz
+    cd google-perftools-1.2
+
+    ./configure --prefix=/opt --disable-shared
+    make
+    sudo make install
+
+    export LD_PRELOAD=/opt/lib/libprofiler.so                 # for linux
+    export DYLD_INSERT_LIBRARIES=/opt/lib/libprofiler.dylib   # for osx
+    CPUPROFILE=/tmp/ruby_interpreter.profile ruby -e' 5_000_000.times{ "hello world" } '
+
+    pprof `which ruby` --text /tmp/ruby_interpreter.profile
+
+
 === TODO
 
   * Add support for heap profiling to find memory leaks (PerfTools::HeapProfiler)
+  * Allow both C and Ruby profiling
+  * Add setter for the sampling interval
 
 
 === Resources
