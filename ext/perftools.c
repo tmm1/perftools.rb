@@ -4,7 +4,7 @@
 
 static VALUE Iallocate;
 
-void
+static inline void
 save_frame(struct FRAME *frame, void** result, int *depth)
 {
   VALUE klass = frame->last_class;
