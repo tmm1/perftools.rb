@@ -124,6 +124,7 @@ google-perftools for ruby code
   * Add support for heap profiling to find memory leaks (PerfTools::HeapProfiler)
   * Allow both C and Ruby profiling
   * Add setter for the sampling interval
+  * Add support for ruby 1.9
 
 
 === Resources
