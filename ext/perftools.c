@@ -2,6 +2,26 @@
 #include <node.h>
 #include <env.h>
 
+static VALUE Iallocate;
+
+void
+save_frame(struct FRAME *frame, void** result, int *depth)
+{
+  VALUE klass = frame->last_class;
+  // XXX what is an ICLASS anyway?
+  // if (BUILTIN_TYPE(klass) == T_ICLASS)
+  //   klass = RBASIC(klass)->klass;
+
+  if (FL_TEST(klass, FL_SINGLETON) &&
+      (BUILTIN_TYPE(frame->self) == T_CLASS || BUILTIN_TYPE(frame->self) == T_MODULE))
+    result[(*depth)++] = (void*) frame->self;
+  else
+    result[(*depth)++] = 0;
+
+  result[(*depth)++] = (void*) klass;
+  result[(*depth)++] = (void*) (frame->last_func == ID_ALLOCATOR ? Iallocate : frame->last_func);
+}
+
 int
 rb_stack_trace(void** result, int max_depth)
 {
@@ -9,30 +29,26 @@ rb_stack_trace(void** result, int max_depth)
   struct FRAME *frame = ruby_frame;
   NODE *n;
 
-  if (max_depth == 0) return 0;
+  if (max_depth == 0)
+    return 0;
+
+  // XXX: figure out what these mean. is there a way to access them from an extension?
   // if (rb_prohibit_interrupt || !rb_trap_immediate) return 0;
 
+#ifdef HAVE_RB_DURING_GC
   if (rb_during_gc()) {
     result[0] = rb_gc;
     return 1;
   }
+#endif
 
+  // XXX does it make sense to track allocations or not?
   if (frame->last_func == ID_ALLOCATOR) {
     frame = frame->prev;
   }
 
   if (frame->last_func) {
-    VALUE klass = frame->last_class;
-    // if (BUILTIN_TYPE(klass) == T_ICLASS)
-    //   klass = RBASIC(klass)->klass;
-
-    if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(frame->self) == T_CLASS || BUILTIN_TYPE(frame->self) == T_MODULE))
-      result[depth++] = (void*) frame->self;
-    else
-      result[depth++] = 0;
-
-    result[depth++] = (void*) klass;
-    result[depth++] = (void*) frame->last_func;
+    save_frame(frame, result, &depth);
   }
 
   for (; frame && (n = frame->node); frame = frame->prev) {
@@ -41,19 +57,10 @@ rb_stack_trace(void** result, int max_depth)
         if (frame->prev->last_func == frame->last_func) continue;
       }
 
-      if (depth+3 > max_depth) break;
+      if (depth+3 > max_depth)
+        break;
 
-      VALUE klass = frame->prev->last_class;
-      // if (BUILTIN_TYPE(klass) == T_ICLASS)
-      //   klass = RBASIC(klass)->klass;
-
-      if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(frame->prev->self) == T_CLASS || BUILTIN_TYPE(frame->prev->self) == T_MODULE))
-        result[depth++] = (void*) frame->prev->self;
-      else
-        result[depth++] = 0;
-
-      result[depth++] = (void*) klass;
-      result[depth++] = (void*) frame->prev->last_func;
+      save_frame(frame->prev, result, &depth);
     }
   }
 
@@ -107,6 +114,7 @@ Init_perftools()
   cPerfTools = rb_define_class("PerfTools", rb_cObject);
   cCpuProfiler = rb_define_class_under(cPerfTools, "CpuProfiler", rb_cObject);
   bProfilerRunning = Qfalse;
+  Iallocate = rb_intern("allocate");
 
   rb_define_singleton_method(cCpuProfiler, "running?", cpuprofiler_running_p, 0);
   rb_define_singleton_method(cCpuProfiler, "start", cpuprofiler_start, 1);

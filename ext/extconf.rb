@@ -52,4 +52,5 @@ when /darwin/, /linux/
 end
 
 $libs = append_library($libs, 'profiler')
+have_func('rb_during_gc', 'ruby.h')
 create_makefile 'perftools'
