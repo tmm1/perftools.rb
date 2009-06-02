@@ -81,16 +81,26 @@ google-perftools for ruby code
 
 === Installation
 
-  Simply install the perftools.rb gem, which will download and compile google-perftools for you:
+  Just install the gem, which will download, patch and compile google-perftools for you:
+
+    sudo gem install perftools.rb
+
+  Or use the dev gem from github:
+
+    gem install -s http://gems.github.com tmm1-perftools.rb
+
+  Or build your own gem:
 
     git clone git://github.com/tmm1/perftools.rb
     cd perftools.rb
     gem build perftools.rb.gemspec
     gem install perftools.rb
 
-  Or from github:
 
-    gem install -s http://gems.github.com tmm1-perftools.rb
+  You'll also need graphviz to generate call graphs using dot:
+
+    sudo port install graphviz     # osx
+    sudo apt-get install graphviz  # debian/ubuntu
 
 
 === Advantages over ruby-prof
