@@ -37,11 +37,11 @@ Dir.chdir('src') do
     end
   end
 
-  unless File.exists?('../libprofiler.a')
+  unless File.exists?('../librubyprofiler.a')
     Dir.chdir(dir) do
       xsystem("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
       xsystem("make")
-      FileUtils.cp '.libs/libprofiler.a', '../../'
+      FileUtils.cp '.libs/libprofiler.a', '../../librubyprofiler.a'
     end
   end
 end
@@ -51,6 +51,6 @@ when /darwin/, /linux/
   CONFIG['LDSHARED'] = "$(CXX) " + CONFIG['LDSHARED'].split[1..-1].join(' ')
 end
 
-$libs = append_library($libs, 'profiler')
+$libs = append_library($libs, 'rubyprofiler')
 have_func('rb_during_gc', 'ruby.h')
 create_makefile 'perftools'
