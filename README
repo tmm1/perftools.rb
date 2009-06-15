@@ -139,6 +139,12 @@ google-perftools for ruby code
 
 === Resources
 
+  GoRuCo 2009 Lightning Talk on perftools.rb
+    http://goruco2009.confreaks.com/30-may-2009-18-35-rejectconf-various-presenters.html at 21:52
+
+  Ilya Grigorik's introduction to perftools.rb
+    http://www.igvita.com/2009/06/13/profiling-ruby-with-googles-perftools/
+
   Google Perftools
     http://code.google.com/p/google-perftools/
 
