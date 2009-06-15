@@ -10,9 +10,15 @@ Logging.message "(I'm about to download and compile google-perftools.. this will
 
 FileUtils.mkdir_p('src')
 
+if proxy = URI(ENV['http_proxy'] || ENV['HTTP_PROXY']) rescue nil
+  proxy_host = proxy.host
+  proxy_port = proxy.port
+  proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
+end
+
 Dir.chdir('src') do
   unless File.exists?(perftools)
-    Net::HTTP.get_response(URI(url)) do |res|
+    Net::HTTP::Proxy(proxy_host, proxy_port, proxy_user, proxy_pass).get_response(URI(url)) do |res|
       File.open(perftools, 'wb') do |out|
         res.read_body do |chunk|
           out.write(chunk)
