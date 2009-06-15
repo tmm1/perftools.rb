@@ -2,7 +2,7 @@ require 'mkmf'
 require 'fileutils'
 require 'net/http'
 
-url = 'http://google-perftools.googlecode.com/files/google-perftools-1.2.tar.gz'
+url = 'http://google-perftools.googlecode.com/files/google-perftools-1.3.tar.gz'
 perftools = File.basename(url)
 dir = File.basename(perftools, '.tar.gz')
 
@@ -31,7 +31,6 @@ Dir.chdir('src') do
     xsystem("tar zxvf #{perftools}")
     Dir.chdir(dir) do
       xsystem("patch -p1 < ../../../patches/perftools.patch")
-      xsystem("patch -p1 < ../../../patches/perftools-static.patch")
       xsystem("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
       xsystem("patch -p1 < ../../../patches/perftools-debug.patch")# if ENV['DEBUG']
     end

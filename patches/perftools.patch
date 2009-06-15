@@ -1,5 +1,25 @@
+diff --git a/Makefile.in b/Makefile.in
+index 8ba85fb..e3690b2 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -1067,13 +1067,13 @@ AUTOMAKE = @AUTOMAKE@
+ AWK = @AWK@
+ CC = @CC@
+ CCDEPMODE = @CCDEPMODE@
+-CFLAGS = @CFLAGS@
++CFLAGS = @CFLAGS@ -DBUILD_FOR_RUBY -fPIC
+ CPP = @CPP@
+ CPPFLAGS = @CPPFLAGS@
+ CXX = @CXX@
+ CXXCPP = @CXXCPP@
+ CXXDEPMODE = @CXXDEPMODE@
+-CXXFLAGS = @CXXFLAGS@
++CXXFLAGS = @CXXFLAGS@ -DBUILD_FOR_RUBY -fPIC
+ CYGPATH_W = @CYGPATH_W@
+ DEFS = @DEFS@
+ DEPDIR = @DEPDIR@
 diff --git a/src/pprof b/src/pprof
-index f23786d..21ccd12 100755
+index 9d4d0e8..a41fcb1 100755
 --- a/src/pprof
 +++ b/src/pprof
 @@ -504,7 +504,8 @@ sub Main() {
@@ -12,8 +32,8 @@ index f23786d..21ccd12 100755
    my $profile = $data->{profile};
    my $pcs = $data->{pcs};
    my $libs = $data->{libs};   # Info about main program and shared libraries
-@@ -536,6 +537,17 @@ sub Main() {
-     $symbols = ExtractSymbols($libs, $pcs);
+@@ -549,6 +550,17 @@ sub Main() {
+     $profile = IgnoreProfile($symbols, $profile, $main::opt_ignore);
    }
  
 +  if (-e "$fname.symbols") {
@@ -29,12 +49,12 @@ index f23786d..21ccd12 100755
 +
    my $calls = ExtractCalls($symbols, $profile);
  
-   # Remove uniniteresting stack items
+   # Reduce profiles to required output granularity, and also clean
 diff --git a/src/profile-handler.cc b/src/profile-handler.cc
-index 0a9f54c..5b99a81 100644
+index e658d30..370d012 100644
 --- a/src/profile-handler.cc
 +++ b/src/profile-handler.cc
-@@ -263,6 +263,11 @@ ProfileHandler::~ProfileHandler() {
+@@ -264,6 +264,11 @@ ProfileHandler::~ProfileHandler() {
  void ProfileHandler::RegisterThread() {
    SpinLockHolder cl(&control_lock_);
  
@@ -46,7 +66,7 @@ index 0a9f54c..5b99a81 100644
    // We try to detect whether timers are being shared by setting a
    // timer in the first call to this function, then checking whether
    // it's set in the second call.
-@@ -304,6 +309,7 @@ void ProfileHandler::RegisterThread() {
+@@ -305,6 +310,7 @@ void ProfileHandler::RegisterThread() {
        StartTimer();
        break;
    }
@@ -246,7 +266,7 @@ index c51c7b2..21c7669 100644
  }
  
 diff --git a/src/stacktrace.cc b/src/stacktrace.cc
-index d158eea..e4132fe 100644
+index d158eea..e8509fe 100644
 --- a/src/stacktrace.cc
 +++ b/src/stacktrace.cc
 @@ -52,6 +52,7 @@
@@ -254,7 +274,7 @@ index d158eea..e4132fe 100644
  // Some code may do that.
  
 +#ifndef BUILD_FOR_RUBY
- #include "config.h"
+ #include <config.h>
  #include <google/stacktrace.h>
  #include "stacktrace_config.h"
 @@ -69,3 +70,4 @@
@@ -262,29 +282,8 @@ index d158eea..e4132fe 100644
  # error Cannot calculate stack trace: will need to write for your environment
  #endif
 +#endif
-\ No newline at end of file
-diff --git a/Makefile.in b/Makefile.in
-index 1247b91..45179f3 100644
---- a/Makefile.in
-+++ b/Makefile.in
-@@ -989,13 +989,13 @@ AUTOMAKE = @AUTOMAKE@
- AWK = @AWK@
- CC = @CC@
- CCDEPMODE = @CCDEPMODE@
--CFLAGS = @CFLAGS@
-+CFLAGS = @CFLAGS@ -DBUILD_FOR_RUBY -fPIC
- CPP = @CPP@
- CPPFLAGS = @CPPFLAGS@
- CXX = @CXX@
- CXXCPP = @CXXCPP@
- CXXDEPMODE = @CXXDEPMODE@
--CXXFLAGS = @CXXFLAGS@
-+CXXFLAGS = @CXXFLAGS@ -DBUILD_FOR_RUBY -fPIC
- CYGPATH_W = @CYGPATH_W@
- DEFS = @DEFS@
- DEPDIR = @DEPDIR@
 diff --git a/src/stacktrace_with_context.cc b/src/stacktrace_with_context.cc
-index f9fc28f..beb7562 100644
+index 02f837d..ca5da92 100644
 --- a/src/stacktrace_with_context.cc
 +++ b/src/stacktrace_with_context.cc
 @@ -41,6 +41,7 @@
@@ -292,7 +291,7 @@ index f9fc28f..beb7562 100644
  // ATTRIBUTE_NOINLINE.
  
 +#ifndef BUILD_FOR_RUBY
- #include "config.h"
+ #include <config.h>
  #include <google/stacktrace.h>
  #include "stacktrace_config.h"
 @@ -59,3 +60,4 @@ int GetStackTraceWithContext(void** result, int max_depth,
