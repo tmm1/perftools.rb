@@ -1,4 +1,9 @@
 require 'mkmf'
+
+if have_func('rb_thread_blocking_region')
+  raise 'Ruby 1.9 is not supported yet'
+end
+
 require 'fileutils'
 require 'net/http'
 
