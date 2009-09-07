@@ -70,6 +70,7 @@ rb_stack_trace(void** result, int max_depth)
 static VALUE cPerfTools;
 static VALUE cCpuProfiler;
 static VALUE bProfilerRunning;
+static VALUE gc_hook;
 
 VALUE
 cpuprofiler_running_p(VALUE self)
@@ -108,6 +109,12 @@ cpuprofiler_start(VALUE self, VALUE filename)
   return Qtrue;
 }
 
+static void
+cpuprofiler_gc_mark()
+{
+  ProfilerGcMark(rb_gc_mark);
+}
+
 void
 Init_perftools()
 {
@@ -119,4 +126,7 @@ Init_perftools()
   rb_define_singleton_method(cCpuProfiler, "running?", cpuprofiler_running_p, 0);
   rb_define_singleton_method(cCpuProfiler, "start", cpuprofiler_start, 1);
   rb_define_singleton_method(cCpuProfiler, "stop", cpuprofiler_stop, 0);
+
+  gc_hook = Data_Wrap_Struct(cCpuProfiler, cpuprofiler_gc_mark, NULL, NULL);
+  rb_global_variable(&gc_hook);
 }

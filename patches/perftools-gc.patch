@@ -1,0 +1,107 @@
+diff --git a/src/profiledata.cc b/src/profiledata.cc
+index e6240d9..b901ee8 100644
+--- a/src/profiledata.cc
++++ b/src/profiledata.cc
+@@ -198,6 +198,29 @@ static void DumpProcSelfMaps(int fd) {
+   }
+ }
+ 
++#ifdef BUILD_FOR_RUBY
++void ProfileData::GcMark(void (*mark)(VALUE)) {
++  if (!enabled()) {
++    return;
++  }
++
++  for (int b = 0; b < kBuckets; b++) {
++    Bucket* bucket = &hash_[b];
++    for (int a = 0; a < kAssociativity; a++) {
++      if (bucket->entry[a].count > 0) {
++        Entry e = bucket->entry[a];
++        if (e.depth > 1)
++          for (int n=0; n<e.depth; n+=3) {
++            if (e.stack[n])
++              mark(e.stack[n]);
++            mark(e.stack[n+1]);
++          }
++      }
++    }
++  }
++}
++#endif
++
+ void ProfileData::Stop() {
+   if (!enabled()) {
+     return;
+diff --git a/src/profiledata.h b/src/profiledata.h
+index 67c463d..1df79c2 100644
+--- a/src/profiledata.h
++++ b/src/profiledata.h
+@@ -40,6 +40,12 @@
+ #ifndef BASE_PROFILEDATA_H_
+ #define BASE_PROFILEDATA_H_
+ 
++#ifdef BUILD_FOR_RUBY
++extern "C" {
++  typedef unsigned long VALUE;
++}
++#endif
++
+ #include <config.h>
+ #include <time.h>   // for time_t
+ #include <stdint.h>
+@@ -141,6 +147,10 @@ class ProfileData {
+   // Get the current state of the data collector.
+   void GetCurrentState(State* state) const;
+ 
++#ifdef BUILD_FOR_RUBY
++	void GcMark(void (*cb)(VALUE));
++#endif
++
+  private:
+   static const int kAssociativity = 4;          // For hashtable
+   static const int kBuckets = 1 << 10;          // For hashtable
+diff --git a/src/profiler.cc b/src/profiler.cc
+index 21c7669..b7277c7 100644
+--- a/src/profiler.cc
++++ b/src/profiler.cc
+@@ -87,6 +87,10 @@ class CpuProfiler {
+   // Write the data to disk (and continue profiling).
+   void FlushTable();
+ 
++#ifdef BUILD_FOR_RUBY
++	void GcMark(void (*cb)(VALUE));
++#endif
++
+   bool Enabled();
+ 
+   void GetCurrentState(ProfilerState* state);
+@@ -221,6 +225,16 @@ void CpuProfiler::FlushTable() {
+   EnableHandler();
+ }
+ 
++#ifdef BUILD_FOR_RUBY
++void CpuProfiler::GcMark(void (*cb)(VALUE)) {
++	if (!collector_.enabled()) {
++		return;
++	}
++
++	collector_.GcMark(cb);
++}
++#endif
++
+ bool CpuProfiler::Enabled() {
+   SpinLockHolder cl(&lock_);
+   return collector_.enabled();
+@@ -300,6 +314,12 @@ extern "C" void ProfilerFlush() {
+   CpuProfiler::instance_.FlushTable();
+ }
+ 
++#ifdef BUILD_FOR_RUBY
++extern "C" void ProfilerGcMark(void (*cb)(VALUE)) {
++  CpuProfiler::instance_.GcMark(cb);
++}
++#endif
++
+ extern "C" int ProfilingIsEnabledForAllThreads() {
+   return CpuProfiler::instance_.Enabled();
+ }

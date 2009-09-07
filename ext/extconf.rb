@@ -36,6 +36,7 @@ Dir.chdir('src') do
     xsystem("tar zxvf #{perftools}")
     Dir.chdir(dir) do
       xsystem("patch -p1 < ../../../patches/perftools.patch")
+      xsystem("patch -p1 < ../../../patches/perftools-gc.patch")
       xsystem("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
       xsystem("patch -p1 < ../../../patches/perftools-debug.patch")# if ENV['DEBUG']
     end
