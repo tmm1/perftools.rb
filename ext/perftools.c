@@ -3,6 +3,7 @@
 #include <env.h>
 
 static VALUE Iallocate;
+static VALUE I__send__;
 
 static inline void
 save_frame(struct FRAME *frame, void** result, int *depth)
@@ -11,6 +12,9 @@ save_frame(struct FRAME *frame, void** result, int *depth)
   // XXX what is an ICLASS anyway?
   // if (BUILTIN_TYPE(klass) == T_ICLASS)
   //   klass = RBASIC(klass)->klass;
+
+  if (frame->last_func == I__send__)
+    return;
 
   if (FL_TEST(klass, FL_SINGLETON) &&
       (BUILTIN_TYPE(frame->self) == T_CLASS || BUILTIN_TYPE(frame->self) == T_MODULE))
@@ -122,6 +126,7 @@ Init_perftools()
   cCpuProfiler = rb_define_class_under(cPerfTools, "CpuProfiler", rb_cObject);
   bProfilerRunning = Qfalse;
   Iallocate = rb_intern("allocate");
+  I__send__ = rb_intern("__send__");
 
   rb_define_singleton_method(cCpuProfiler, "running?", cpuprofiler_running_p, 0);
   rb_define_singleton_method(cCpuProfiler, "start", cpuprofiler_start, 1);
