@@ -46,6 +46,8 @@ rb_stack_trace(void** result, int max_depth)
   }
 #endif
 
+  // XXX SIGPROF can come in while ruby_frame is in an inconsistent state (rb_call0), so we ignore the top-most frame
+  /*
   // XXX does it make sense to track allocations or not?
   if (frame->last_func == ID_ALLOCATOR) {
     frame = frame->prev;
@@ -54,6 +56,7 @@ rb_stack_trace(void** result, int max_depth)
   if (frame->last_func) {
     save_frame(frame, result, &depth);
   }
+  */
 
   for (; frame && (n = frame->node); frame = frame->prev) {
     if (frame->prev && frame->prev->last_func) {
