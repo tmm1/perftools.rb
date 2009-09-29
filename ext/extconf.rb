@@ -62,6 +62,7 @@ when /darwin/, /linux/
   CONFIG['LDSHARED'] = "$(CXX) " + CONFIG['LDSHARED'].split[1..-1].join(' ')
 end
 
+$LIBPATH << '.'
 $libs = append_library($libs, 'rubyprofiler')
 have_func('rb_during_gc', 'ruby.h')
 create_makefile 'perftools'
