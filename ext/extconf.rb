@@ -1,4 +1,15 @@
+CWD = File.expand_path(File.dirname(__FILE__))
+
+def sys(cmd)
+  puts "  -- #{cmd}"
+  unless ret = xsystem(cmd)
+    raise "#{cmd} failed, please report to perftools@tmm1.net with pastie.org link to #{CWD}/mkmf.log"
+  end
+  ret
+end
+
 require 'mkmf'
+$LIBPATH << CWD
 
 if have_func('rb_thread_blocking_region')
   raise 'Ruby 1.9 is not supported yet'
@@ -13,12 +24,12 @@ puts "(I'm about to compile google-perftools.. this will definitely take a while
 
 Dir.chdir('src') do
   unless File.exists?(dir)
-    xsystem("tar zxvf #{perftools}")
+    sys("tar zxvf #{perftools}")
     Dir.chdir(dir) do
-      xsystem("patch -p1 < ../../../patches/perftools.patch")
-      xsystem("patch -p1 < ../../../patches/perftools-gc.patch")
-      xsystem("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
-      xsystem("patch -p1 < ../../../patches/perftools-debug.patch")# if ENV['DEBUG']
+      sys("patch -p1 < ../../../patches/perftools.patch")
+      sys("patch -p1 < ../../../patches/perftools-gc.patch")
+      sys("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
+      sys("patch -p1 < ../../../patches/perftools-debug.patch")
     end
   end
 
@@ -30,8 +41,8 @@ Dir.chdir('src') do
 
   unless File.exists?('../librubyprofiler.a')
     Dir.chdir(dir) do
-      xsystem("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
-      xsystem("make")
+      sys("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
+      sys("make")
       FileUtils.cp '.libs/libprofiler.a', '../../librubyprofiler.a'
     end
   end
@@ -42,7 +53,6 @@ when /darwin/, /linux/
   CONFIG['LDSHARED'] = "$(CXX) " + CONFIG['LDSHARED'].split[1..-1].join(' ')
 end
 
-$LIBPATH << '.'
 $libs = append_library($libs, 'rubyprofiler')
 have_func('rb_during_gc', 'ruby.h')
 create_makefile 'perftools'
