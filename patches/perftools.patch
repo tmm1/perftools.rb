@@ -1,8 +1,8 @@
 diff --git a/Makefile.in b/Makefile.in
-index 8ba85fb..e3690b2 100644
+index 232d2ec..566d77c 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -1067,13 +1067,13 @@ AUTOMAKE = @AUTOMAKE@
+@@ -1367,13 +1367,13 @@ AUTOMAKE = @AUTOMAKE@
  AWK = @AWK@
  CC = @CC@
  CCDEPMODE = @CCDEPMODE@
@@ -19,12 +19,12 @@ index 8ba85fb..e3690b2 100644
  DEFS = @DEFS@
  DEPDIR = @DEPDIR@
 diff --git a/src/pprof b/src/pprof
-index 9d4d0e8..a41fcb1 100755
+index 973f69d..3531300 100755
 --- a/src/pprof
 +++ b/src/pprof
-@@ -504,7 +504,8 @@ sub Main() {
-   FetchDynamicProfiles();
-     
+@@ -530,7 +530,8 @@ sub Main() {
+   my $symbol_map = {};
+ 
    # Read one profile, pick the last item on the list
 -  my $data = ReadProfile($main::prog, pop(@main::profile_files));
 +  my $fname = pop(@main::profile_files);
@@ -32,7 +32,7 @@ index 9d4d0e8..a41fcb1 100755
    my $profile = $data->{profile};
    my $pcs = $data->{pcs};
    my $libs = $data->{libs};   # Info about main program and shared libraries
-@@ -549,6 +550,17 @@ sub Main() {
+@@ -580,6 +581,17 @@ sub Main() {
      $profile = IgnoreProfile($symbols, $profile, $main::opt_ignore);
    }
  
@@ -227,7 +227,7 @@ index da7ea9e..67c463d 100644
  
    // Move 'entry' to the eviction buffer.
 diff --git a/src/profiler.cc b/src/profiler.cc
-index c51c7b2..21c7669 100644
+index 183a7c7..d89a53a 100644
 --- a/src/profiler.cc
 +++ b/src/profiler.cc
 @@ -63,6 +63,12 @@ typedef int ucontext_t;   // just to quiet the compiler, mostly
@@ -283,7 +283,7 @@ index d158eea..e8509fe 100644
  #endif
 +#endif
 diff --git a/src/stacktrace_with_context.cc b/src/stacktrace_with_context.cc
-index 02f837d..ca5da92 100644
+index ed7bfe3..a90c070 100644
 --- a/src/stacktrace_with_context.cc
 +++ b/src/stacktrace_with_context.cc
 @@ -41,6 +41,7 @@

@@ -22,6 +22,7 @@ spec = Gem::Specification.new do |s|
     "bin/pprof.rb",
     "ext/extconf.rb",
     "ext/perftools.c",
+    "ext/src/google-perftools-1.4.tar.gz",
     "patches/perftools-debug.patch",
     "patches/perftools-gc.patch",
     "patches/perftools-osx.patch",

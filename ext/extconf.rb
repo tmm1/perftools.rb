@@ -5,33 +5,13 @@ if have_func('rb_thread_blocking_region')
 end
 
 require 'fileutils'
-require 'net/http'
 
-url = 'http://google-perftools.googlecode.com/files/google-perftools-1.3.tar.gz'
-perftools = File.basename(url)
+perftools = File.basename('google-perftools-1.4.tar.gz')
 dir = File.basename(perftools, '.tar.gz')
 
-Logging.message "(I'm about to download and compile google-perftools.. this will definitely take a while)"
-
-FileUtils.mkdir_p('src')
-
-if proxy = URI(ENV['http_proxy'] || ENV['HTTP_PROXY']) rescue nil
-  proxy_host = proxy.host
-  proxy_port = proxy.port
-  proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
-end
+puts "(I'm about to compile google-perftools.. this will definitely take a while)"
 
 Dir.chdir('src') do
-  unless File.exists?(perftools)
-    Net::HTTP::Proxy(proxy_host, proxy_port, proxy_user, proxy_pass).get_response(URI(url)) do |res|
-      File.open(perftools, 'wb') do |out|
-        res.read_body do |chunk|
-          out.write(chunk)
-        end
-      end
-    end
-  end
-
   unless File.exists?(dir)
     xsystem("tar zxvf #{perftools}")
     Dir.chdir(dir) do

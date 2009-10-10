@@ -1,8 +1,8 @@
 diff --git a/Makefile.in b/Makefile.in
-index e3690b2..a7a4fb5 100644
+index 566d77c..c3bf409 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -1097,7 +1097,7 @@ INSTALL_DATA = @INSTALL_DATA@
+@@ -1397,7 +1397,7 @@ INSTALL_DATA = @INSTALL_DATA@
  INSTALL_PROGRAM = @INSTALL_PROGRAM@
  INSTALL_SCRIPT = @INSTALL_SCRIPT@
  INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
