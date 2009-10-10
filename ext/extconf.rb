@@ -3,7 +3,7 @@ CWD = File.expand_path(File.dirname(__FILE__))
 def sys(cmd)
   puts "  -- #{cmd}"
   unless ret = xsystem(cmd)
-    raise "#{cmd} failed, please report to perftools@tmm1.net with pastie.org link to #{CWD}/mkmf.log"
+    raise "#{cmd} failed, please report to perftools@tmm1.net with pastie.org link to #{CWD}/mkmf.log and #{CWD}/src/google-perftools-1.4/config.log"
   end
   ret
 end
@@ -29,6 +29,7 @@ Dir.chdir('src') do
       sys("patch -p1 < ../../../patches/perftools.patch")
       sys("patch -p1 < ../../../patches/perftools-gc.patch")
       sys("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
+      sys("patch -p1 < ../../../patches/perftools-osx-106.patch") if RUBY_PLATFORM =~ /darwin10/
       sys("patch -p1 < ../../../patches/perftools-debug.patch")
     end
   end
@@ -41,6 +42,9 @@ Dir.chdir('src') do
 
   unless File.exists?('../librubyprofiler.a')
     Dir.chdir(dir) do
+      if RUBY_PLATFORM =~ /darwin10/
+        ENV['CFLAGS'] = ENV['CXXFLAGS'] = '-D_XOPEN_SOURCE'
+      end
       sys("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
       sys("make")
       FileUtils.cp '.libs/libprofiler.a', '../../librubyprofiler.a'
