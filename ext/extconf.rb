@@ -76,6 +76,7 @@ if RUBY_VERSION >= "1.9"
     have_header("insns.inc") and
     have_header("insns_info.inc")
   }
+  have_func('rb_during_gc', 'ruby.h')
 
   unless Ruby_core_source::create_makefile_with_core(hdrs, "perftools")
     STDERR.puts "\n\n"
