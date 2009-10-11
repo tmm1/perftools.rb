@@ -23,32 +23,30 @@ dir = File.basename(perftools, '.tar.gz')
 puts "(I'm about to compile google-perftools.. this will definitely take a while)"
 
 Dir.chdir('src') do
-  unless File.exists?(dir)
-    sys("tar zxvf #{perftools}")
-    Dir.chdir(dir) do
-      sys("patch -p1 < ../../../patches/perftools.patch")
-      sys("patch -p1 < ../../../patches/perftools-gc.patch")
-      sys("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
-      sys("patch -p1 < ../../../patches/perftools-osx-106.patch") if RUBY_PLATFORM =~ /darwin10/
-      sys("patch -p1 < ../../../patches/perftools-debug.patch")
-    end
+  FileUtils.rm_rf(dir) if File.exists?(dir)
+
+  sys("tar zxvf #{perftools}")
+  Dir.chdir(dir) do
+    sys("patch -p1 < ../../../patches/perftools.patch")
+    sys("patch -p1 < ../../../patches/perftools-pprof.patch")
+    sys("patch -p1 < ../../../patches/perftools-gc.patch")
+    sys("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
+    sys("patch -p1 < ../../../patches/perftools-osx-106.patch") if RUBY_PLATFORM =~ /darwin10/
+    sys("patch -p1 < ../../../patches/perftools-debug.patch")
   end
 
-  unless File.exists?('../bin/pprof')
-    Dir.chdir(dir) do
-      FileUtils.cp 'src/pprof', '../../../bin/'
-    end
+  Dir.chdir(dir) do
+    FileUtils.cp 'src/pprof', '../../../bin/'
+    FileUtils.chmod 0755, '../../../bin/pprof'
   end
 
-  unless File.exists?('../librubyprofiler.a')
-    Dir.chdir(dir) do
-      if RUBY_PLATFORM =~ /darwin10/
-        ENV['CFLAGS'] = ENV['CXXFLAGS'] = '-D_XOPEN_SOURCE'
-      end
-      sys("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
-      sys("make")
-      FileUtils.cp '.libs/libprofiler.a', '../../librubyprofiler.a'
+  Dir.chdir(dir) do
+    if RUBY_PLATFORM =~ /darwin10/
+      ENV['CFLAGS'] = ENV['CXXFLAGS'] = '-D_XOPEN_SOURCE'
     end
+    sys("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
+    sys("make")
+    FileUtils.cp '.libs/libprofiler.a', '../../librubyprofiler.a'
   end
 end
 
