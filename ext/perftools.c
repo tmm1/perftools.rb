@@ -148,9 +148,6 @@ static VALUE I__send__;
       printf("  klass: %p (%s)\n", cfp->method_class, cfp->method_class ? rb_class2name(cfp->method_class) : "");
       printf("  method: %p (%s)\n", cfp->method_id, cfp->method_id ? rb_id2name(cfp->method_id) : "");
 
-      func = frame_func_id(cfp);
-      printf("  func(): %p (%s)\n", func, func ? rb_id2name(func) : "");
-
       cfp = RUBY_VM_PREVIOUS_CONTROL_FRAME(cfp);
       printf("\n");
     }
