@@ -1,9 +1,99 @@
 #include <ruby.h>
-#include <node.h>
-#include <env.h>
-
 static VALUE Iallocate;
 static VALUE I__send__;
+
+#ifdef RUBY19
+#include <vm_core.h>
+#include <iseq.h>
+
+#ifdef DEBUG
+static void
+rb_dump_stack()
+{
+  rb_thread_t *th = GET_THREAD();
+  rb_control_frame_t *cfp = th->cfp;
+  rb_control_frame_t *end_cfp = RUBY_VM_END_CONTROL_FRAME(th);
+  ID func;
+
+  printf("\n\n*********************\n");
+  while (RUBY_VM_VALID_CONTROL_FRAME_P(cfp, end_cfp)) {
+    printf("cfp (%p):\n", cfp);
+    printf("  type: 0x%x\n", VM_FRAME_TYPE(cfp));
+    printf("  pc: %p\n", cfp->pc);
+    printf("  iseq: %p\n", cfp->iseq);
+    if (cfp->iseq) {
+      printf("     type: %d\n", FIX2INT(cfp->iseq->type));
+      printf("     self: %p\n", cfp->iseq->self);
+      printf("     klass: %p (%s)\n", cfp->iseq->klass, cfp->iseq->klass ? rb_class2name(cfp->iseq->klass) : "");
+      printf("     method: %p (%s)\n", cfp->iseq->defined_method_id, cfp->iseq->defined_method_id ? rb_id2name(cfp->iseq->defined_method_id) : "");
+    }
+    printf("  self: %p\n", cfp->self);
+    printf("  klass: %p (%s)\n", cfp->method_class, cfp->method_class ? rb_class2name(cfp->method_class) : "");
+    printf("  method: %p (%s)\n", cfp->method_id, cfp->method_id ? rb_id2name(cfp->method_id) : "");
+
+    func = frame_func_id(cfp);
+    printf("  func(): %p (%s)\n", func, func ? rb_id2name(func) : "");
+
+    cfp = RUBY_VM_PREVIOUS_CONTROL_FRAME(cfp);
+    printf("\n");
+  }
+  printf("*********************\n\n");
+}
+#endif
+
+#define SAVE_FRAME(self, klass, method) \
+  if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) { \
+    result[depth++] = (void*) self; \
+    result[depth++] = (void*) klass; \
+    result[depth++] = (void*) method; \
+  } else { \
+    result[depth++] = 0; \
+    result[depth++] = (void*) klass; \
+    result[depth++] = (void*) method; \
+  }
+
+int
+rb_stack_trace(void** result, int max_depth)
+{
+  rb_thread_t *th = GET_THREAD();
+  rb_control_frame_t *cfp = th->cfp;
+  rb_control_frame_t *end_cfp = RUBY_VM_END_CONTROL_FRAME(th);
+
+  VALUE klass, self;
+  ID method;
+  int depth = 0;
+
+  while (RUBY_VM_VALID_CONTROL_FRAME_P(cfp, end_cfp) && depth+3 < max_depth) {
+    klass = self = method = 0;
+    rb_iseq_t *iseq = cfp->iseq;
+
+    if (iseq && iseq->type == ISEQ_TYPE_METHOD) {
+      self = iseq->self;
+      klass = iseq->klass;
+      method = iseq->defined_method_id;
+      SAVE_FRAME(self, klass, method);
+    }
+
+    switch(VM_FRAME_TYPE(cfp)) {
+      case VM_FRAME_MAGIC_METHOD:
+      case VM_FRAME_MAGIC_CFUNC:
+        self = cfp->self;
+        klass = cfp->method_class;
+        method = cfp->method_id;
+        SAVE_FRAME(self, klass, method);
+        break;
+    }
+
+    cfp = RUBY_VM_PREVIOUS_CONTROL_FRAME(cfp);
+  }
+
+  return depth;
+}
+#endif
+
+#ifdef RUBY18
+#include <node.h>
+#include <env.h>
 
 static inline void
 save_frame(struct FRAME *frame, void** result, int *depth)
@@ -39,12 +129,12 @@ rb_stack_trace(void** result, int max_depth)
   // XXX: figure out what these mean. is there a way to access them from an extension?
   // if (rb_prohibit_interrupt || !rb_trap_immediate) return 0;
 
-#ifdef HAVE_RB_DURING_GC
+  #ifdef HAVE_RB_DURING_GC
   if (rb_during_gc()) {
     result[0] = rb_gc;
     return 1;
   }
-#endif
+  #endif
 
   // XXX SIGPROF can come in while ruby_frame is in an inconsistent state (rb_call0), so we ignore the top-most frame
   /*
@@ -73,6 +163,7 @@ rb_stack_trace(void** result, int max_depth)
 
   return depth;
 }
+#endif
 
 static VALUE cPerfTools;
 static VALUE cCpuProfiler;

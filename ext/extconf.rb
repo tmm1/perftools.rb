@@ -9,13 +9,19 @@ def sys(cmd)
 end
 
 require 'mkmf'
-$LIBPATH << CWD
-
-if have_func('rb_thread_blocking_region')
-  raise 'Ruby 1.9 is not supported yet'
-end
-
 require 'fileutils'
+
+if RUBY_VERSION >= "1.9"
+  begin
+    require "ruby_core_source"
+  rescue LoadError
+    STDERR.puts "\n\n"
+    STDERR.puts "***************************************************************************************"
+    STDERR.puts "******************** PLEASE RUN gem install ruby_core_source FIRST ********************"
+    STDERR.puts "***************************************************************************************"
+    exit(1)
+  end
+end
 
 perftools = File.basename('google-perftools-1.4.tar.gz')
 dir = File.basename(perftools, '.tar.gz')
@@ -50,11 +56,37 @@ Dir.chdir('src') do
   end
 end
 
+$LIBPATH << CWD
+$libs = append_library($libs, 'rubyprofiler')
+def add_define(name)
+  $defs.push("-D#{name}")
+end
+
 case RUBY_PLATFORM
 when /darwin/, /linux/
   CONFIG['LDSHARED'] = "$(CXX) " + CONFIG['LDSHARED'].split[1..-1].join(' ')
 end
 
-$libs = append_library($libs, 'rubyprofiler')
-have_func('rb_during_gc', 'ruby.h')
-create_makefile 'perftools'
+if RUBY_VERSION >= "1.9"
+  add_define 'RUBY19'
+
+  hdrs = proc {
+    have_header("vm_core.h") and
+    have_header("iseq.h") and
+    have_header("insns.inc") and
+    have_header("insns_info.inc")
+  }
+
+  unless Ruby_core_source::create_makefile_with_core(hdrs, "perftools")
+    STDERR.puts "\n\n"
+    STDERR.puts "***************************************************************************************"
+    STDERR.puts "********************** Ruby_core_source::create_makefile FAILED ***********************"
+    STDERR.puts "***************************************************************************************"
+    exit(1)
+  end
+else
+  add_define 'RUBY18'
+
+  have_func('rb_during_gc', 'ruby.h')
+  create_makefile 'perftools'
+end
