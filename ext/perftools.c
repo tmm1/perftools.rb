@@ -2,11 +2,22 @@
 static VALUE Iallocate;
 static VALUE I__send__;
 
+#define SAVE_FRAME() \
+  if (method != I__send__) { \
+    if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) \
+      result[depth++] = (void*) self; \
+    else \
+      result[depth++] = 0; \
+    \
+    result[depth++] = (void*) klass; \
+    result[depth++] = (void*) (method == ID_ALLOCATOR ? Iallocate : method); \
+  }
+
 #ifdef RUBY19
 #include <vm_core.h>
 #include <iseq.h>
 
-#ifdef DEBUG
+#if 0
 static void
 rb_dump_stack()
 {
@@ -41,17 +52,6 @@ rb_dump_stack()
 }
 #endif
 
-#define SAVE_FRAME(self, klass, method) \
-  if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) { \
-    result[depth++] = (void*) self; \
-    result[depth++] = (void*) klass; \
-    result[depth++] = (void*) method; \
-  } else { \
-    result[depth++] = 0; \
-    result[depth++] = (void*) klass; \
-    result[depth++] = (void*) method; \
-  }
-
 int
 rb_stack_trace(void** result, int max_depth)
 {
@@ -64,14 +64,13 @@ rb_stack_trace(void** result, int max_depth)
   int depth = 0;
 
   while (RUBY_VM_VALID_CONTROL_FRAME_P(cfp, end_cfp) && depth+3 < max_depth) {
-    klass = self = method = 0;
     rb_iseq_t *iseq = cfp->iseq;
 
     if (iseq && iseq->type == ISEQ_TYPE_METHOD) {
       self = iseq->self;
       klass = iseq->klass;
       method = iseq->defined_method_id;
-      SAVE_FRAME(self, klass, method);
+      SAVE_FRAME();
     }
 
     switch(VM_FRAME_TYPE(cfp)) {
@@ -80,7 +79,7 @@ rb_stack_trace(void** result, int max_depth)
         self = cfp->self;
         klass = cfp->method_class;
         method = cfp->method_id;
-        SAVE_FRAME(self, klass, method);
+        SAVE_FRAME();
         break;
     }
 
@@ -95,33 +94,15 @@ rb_stack_trace(void** result, int max_depth)
 #include <node.h>
 #include <env.h>
 
-static inline void
-save_frame(struct FRAME *frame, void** result, int *depth)
-{
-  VALUE klass = frame->last_class;
-  // XXX what is an ICLASS anyway?
-  // if (BUILTIN_TYPE(klass) == T_ICLASS)
-  //   klass = RBASIC(klass)->klass;
-
-  if (frame->last_func == I__send__)
-    return;
-
-  if (FL_TEST(klass, FL_SINGLETON) &&
-      (BUILTIN_TYPE(frame->self) == T_CLASS || BUILTIN_TYPE(frame->self) == T_MODULE))
-    result[(*depth)++] = (void*) frame->self;
-  else
-    result[(*depth)++] = 0;
-
-  result[(*depth)++] = (void*) klass;
-  result[(*depth)++] = (void*) (frame->last_func == ID_ALLOCATOR ? Iallocate : frame->last_func);
-}
-
 int
 rb_stack_trace(void** result, int max_depth)
 {
-  int depth = 0;
   struct FRAME *frame = ruby_frame;
   NODE *n;
+
+  VALUE klass, self;
+  ID method;
+  int depth = 0;
 
   if (max_depth == 0)
     return 0;
@@ -144,7 +125,10 @@ rb_stack_trace(void** result, int max_depth)
   }
 
   if (frame->last_func) {
-    save_frame(frame, result, &depth);
+    self = frame->self;
+    klass = frame->last_class;
+    method = frame->last_func;
+    SAVE_FRAME();
   }
   */
 
@@ -157,7 +141,10 @@ rb_stack_trace(void** result, int max_depth)
       if (depth+3 > max_depth)
         break;
 
-      save_frame(frame->prev, result, &depth);
+      self = frame->prev->self;
+      klass = frame->prev->last_class;
+      method = frame->prev->last_func;
+      SAVE_FRAME();
     }
   }
 
