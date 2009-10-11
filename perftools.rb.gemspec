@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name = 'perftools.rb'
-  s.version = '0.3.0'
+  s.version = '0.3.1'
   s.date = '2009-10-10'
   s.rubyforge_project = 'perftools-rb'
   s.summary = 'google-perftools for ruby code'
@@ -16,7 +16,7 @@ spec = Gem::Specification.new do |s|
   s.bindir = 'bin'
   s.executables << 'pprof.rb'
 
-  # ruby -rpp -e' pp `git ls-files | grep -v examples`.split("\n") '
+  # ruby -rpp -e' pp `git ls-files | grep -v examples`.split("\n").sort '
   s.files = [
     "README",
     "bin/pprof.rb",
@@ -25,8 +25,8 @@ spec = Gem::Specification.new do |s|
     "ext/src/google-perftools-1.4.tar.gz",
     "patches/perftools-debug.patch",
     "patches/perftools-gc.patch",
-    "patches/perftools-osx.patch",
     "patches/perftools-osx-106.patch",
+    "patches/perftools-osx.patch",
     "patches/perftools-pprof.patch",
     "patches/perftools.patch",
     "perftools.rb.gemspec"
