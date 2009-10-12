@@ -90,12 +90,10 @@ static VALUE I__send__;
     if (max_depth == 0)
       return 0;
 
-    #ifdef HAVE_RB_DURING_GC
     if (rb_during_gc()) {
       result[0] = rb_gc;
       return 1;
     }
-    #endif
 
     while (RUBY_VM_VALID_CONTROL_FRAME_P(cfp, end_cfp) && depth+3 < max_depth) {
       rb_iseq_t *iseq = cfp->iseq;
@@ -107,7 +105,7 @@ static VALUE I__send__;
         SAVE_FRAME();
       }
 
-      switch(VM_FRAME_TYPE(cfp)) {
+      switch (VM_FRAME_TYPE(cfp)) {
         case VM_FRAME_MAGIC_METHOD:
         case VM_FRAME_MAGIC_CFUNC:
           self = cfp->self;
