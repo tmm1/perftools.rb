@@ -34,6 +34,7 @@ Dir.chdir('src') do
   sys("tar zxvf #{perftools}")
   Dir.chdir(dir) do
     sys("patch -p1 < ../../../patches/perftools.patch")
+    sys("patch -p1 < ../../../patches/perftools-notests.patch")
     sys("patch -p1 < ../../../patches/perftools-pprof.patch")
     sys("patch -p1 < ../../../patches/perftools-gc.patch")
     sys("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
@@ -50,7 +51,7 @@ Dir.chdir('src') do
     if RUBY_PLATFORM =~ /darwin10/
       ENV['CFLAGS'] = ENV['CXXFLAGS'] = '-D_XOPEN_SOURCE'
     end
-    sys("./configure --disable-heap-profiler --disable-heap-checker --disable-shared")
+    sys("./configure --disable-heap-profiler --disable-heap-checker --disable-debugalloc --disable-shared")
     sys("make")
     FileUtils.cp '.libs/libprofiler.a', '../../librubyprofiler.a'
   end

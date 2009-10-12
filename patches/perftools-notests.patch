@@ -1,0 +1,15 @@
+diff --git a/Makefile.in b/Makefile.in
+index 0ddc27c..1869975 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -53,9 +53,7 @@ host_triplet = @host@
+ @ENABLE_FRAME_POINTERS_TRUE@@X86_64_TRUE@am__append_3 = -fno-omit-frame-pointer
+ @ENABLE_FRAME_POINTERS_FALSE@@X86_64_TRUE@am__append_4 = -DNO_FRAME_POINTER
+ @MINGW_TRUE@am__append_5 = -Wl,-u__tcmalloc
+-noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
+-	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6) \
+-	$(am__EXEEXT_7) $(am__EXEEXT_8) $(am__EXEEXT_22)
++noinst_PROGRAMS =
+ bin_PROGRAMS =
+ @MINGW_TRUE@am__append_6 = libwindows.la libspinlock.la
+ 

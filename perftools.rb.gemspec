@@ -28,6 +28,7 @@ spec = Gem::Specification.new do |s|
     "patches/perftools-osx-106.patch",
     "patches/perftools-osx.patch",
     "patches/perftools-pprof.patch",
+    "patches/perftools-notests.patch",
     "patches/perftools.patch",
     "perftools.rb.gemspec"
   ]
