@@ -1,10 +1,11 @@
+#include <assert.h>
 #include <ruby.h>
 static VALUE Iallocate;
 static VALUE I__send__;
 
 #define SAVE_FRAME() \
-  if (method != I__send__) { \
-    if (FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) \
+  if (method && method != I__send__) { \
+    if (self && FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) \
       result[depth++] = (void*) self; \
     else \
       result[depth++] = 0; \
@@ -68,6 +69,7 @@ static VALUE I__send__;
       }
     }
 
+    assert(depth <= max_depth);
     return depth;
   }
 #endif
@@ -95,15 +97,18 @@ static VALUE I__send__;
       return 1;
     }
 
-    while (RUBY_VM_VALID_CONTROL_FRAME_P(cfp, end_cfp) && depth+3 < max_depth) {
+    while (RUBY_VM_VALID_CONTROL_FRAME_P(cfp, end_cfp) && depth+3 <= max_depth) {
       rb_iseq_t *iseq = cfp->iseq;
 
       if (iseq && iseq->type == ISEQ_TYPE_METHOD) {
-        self = iseq->self;
+        self = 0; // maybe use cfp->self here, but iseq->self is a ISeq ruby obj
         klass = iseq->klass;
         method = iseq->defined_method_id;
         SAVE_FRAME();
       }
+
+      if (depth+3 > max_depth)
+        break;
 
       switch (VM_FRAME_TYPE(cfp)) {
         case VM_FRAME_MAGIC_METHOD:
@@ -118,6 +123,7 @@ static VALUE I__send__;
       cfp = RUBY_VM_PREVIOUS_CONTROL_FRAME(cfp);
     }
 
+    assert(depth <= max_depth);
     return depth;
   }
 

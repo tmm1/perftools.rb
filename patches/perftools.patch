@@ -122,7 +122,7 @@ index 5f2531b..e6240d9 100644
    start_time_ = time(NULL);
    fname_ = strdup(fname);
  
-@@ -166,16 +203,47 @@ void ProfileData::Stop() {
+@@ -166,16 +203,52 @@ void ProfileData::Stop() {
      return;
    }
  
@@ -143,22 +143,27 @@ index 5f2531b..e6240d9 100644
 +        Entry e = bucket->entry[a];
 +        Evict(e);
 +#ifdef BUILD_FOR_RUBY
-+        if (e.depth > 1)
++        if (e.depth > 1) {
 +          for (int n=0; n<e.depth; n+=3) {
-+            ID sym = e.stack[n] + e.stack[n+1] + e.stack[n+2];
++            VALUE self = e.stack[n];
++            VALUE klass = e.stack[n+1];
++            ID method = e.stack[n+2];
++
++            ID sym = self + klass + method; // unique identifer
 +
 +            if (known_symbols.find(sym) == known_symbols.end()) {
 +              fprintf(symbols, "%0*lx: ", sizeof(unsigned long)*2, sym);
 +
-+              if (e.stack[n])
-+                fprintf(symbols, "%s.", rb_class2name(e.stack[n]));
-+              else
-+                fprintf(symbols, "%s#", rb_class2name(e.stack[n+1]));
++              if (self) { // class method
++                fprintf(symbols, "%s.%s\n", rb_class2name(self), rb_id2name(method));
++              } else { // instance method
++                fprintf(symbols, "%s#%s\n", rb_class2name(klass), rb_id2name(method));
++              }
 +
-+              fprintf(symbols, "%s\n", rb_id2name(e.stack[n+2]));
 +              known_symbols.insert(sym);
 +            }
 +          }
++        }
 +#endif
        }
      }
