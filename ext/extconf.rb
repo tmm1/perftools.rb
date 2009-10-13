@@ -33,13 +33,25 @@ Dir.chdir('src') do
 
   sys("tar zxvf #{perftools}")
   Dir.chdir(dir) do
-    sys("patch -p1 < ../../../patches/perftools.patch")
-    sys("patch -p1 < ../../../patches/perftools-notests.patch")
-    sys("patch -p1 < ../../../patches/perftools-pprof.patch")
-    sys("patch -p1 < ../../../patches/perftools-gc.patch")
-    sys("patch -p1 < ../../../patches/perftools-osx.patch") if RUBY_PLATFORM =~ /darwin/
-    sys("patch -p1 < ../../../patches/perftools-osx-106.patch") if RUBY_PLATFORM =~ /darwin10/
-    sys("patch -p1 < ../../../patches/perftools-debug.patch")
+    if ENV['DEV']
+      sys("git init")
+      sys("git add .")
+      sys("git commit -m 'initial source'")
+    end
+
+    [ ['perftools', true],
+      ['perftools-notests', true],
+      ['perftools-pprof', true],
+      ['perftools-gc', true],
+      ['perftools-osx', RUBY_PLATFORM =~ /darwin/],
+      ['perftools-osx-106', RUBY_PLATFORM =~ /darwin10/],
+      ['perftools-debug', true]
+    ].each do |patch, apply|
+      if apply
+        sys("patch -p1 < ../../../patches/#{patch}.patch")
+        sys("git commit -am '#{patch}'") if ENV['DEV']
+      end
+    end
   end
 
   Dir.chdir(dir) do
