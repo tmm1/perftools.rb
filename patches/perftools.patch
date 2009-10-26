@@ -43,7 +43,7 @@ index e658d30..370d012 100644
  
  ProfileHandlerToken* ProfileHandler::RegisterCallback(
 diff --git a/src/profiledata.cc b/src/profiledata.cc
-index 5f2531b..e6240d9 100644
+index 5f2531b..ea95493 100644
 --- a/src/profiledata.cc
 +++ b/src/profiledata.cc
 @@ -56,6 +56,19 @@ const int ProfileData::kAssociativity;
@@ -122,14 +122,23 @@ index 5f2531b..e6240d9 100644
    start_time_ = time(NULL);
    fname_ = strdup(fname);
  
-@@ -166,16 +203,52 @@ void ProfileData::Stop() {
+@@ -166,16 +203,61 @@ void ProfileData::Stop() {
      return;
    }
  
 +#ifdef BUILD_FOR_RUBY
 +  FILE *symbols;
++  int precision;
++
 +  symbols = fopen(sym_fname_, "w");
-+  fprintf(symbols, "%0*lx: garbage_collector\n", sizeof(unsigned long)*2, (ID)rb_gc);
++  if (!symbols) {
++    fprintf(stderr, "PROFILER ERROR: Unable to open %s (%s)\n", sym_fname_, strerror(errno));
++    Reset();
++    return;
++  }
++
++  precision = sizeof(unsigned long)*2;
++  fprintf(symbols, "%0*lx: garbage_collector\n", precision, (ID)rb_gc);
 +
 +  std::set<ID> known_symbols;
 +#endif
@@ -152,7 +161,7 @@ index 5f2531b..e6240d9 100644
 +            ID sym = self + klass + method; // unique identifer
 +
 +            if (known_symbols.find(sym) == known_symbols.end()) {
-+              fprintf(symbols, "%0*lx: ", sizeof(unsigned long)*2, sym);
++              fprintf(symbols, "%0*lx: ", precision, sym);
 +
 +              if (self) { // class method
 +                fprintf(symbols, "%s.%s\n", rb_class2name(self), rb_id2name(method));
@@ -176,7 +185,7 @@ index 5f2531b..e6240d9 100644
    if (num_evicted_ + 3 > kBufferLength) {
      // Ensure there is enough room for end of data marker
      FlushEvicted();
-@@ -211,6 +279,10 @@ void ProfileData::Reset() {
+@@ -211,6 +293,10 @@ void ProfileData::Reset() {
    num_evicted_ = 0;
    free(fname_);
    fname_ = 0;
