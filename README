@@ -21,6 +21,14 @@ google-perftools for ruby code
 
     $ CPUPROFILE=/tmp/my_app_profile RUBYOPT="-r`gem which perftools | tail -1`" ruby my_app.rb
 
+  Change the sampling interval (defaults to 100 times a second, valid range is 1-4000):
+
+    $ CPUPROFILE_FREQUENCY=500 ruby my_app.rb
+
+  Use walltime instead of cputime profiling:
+
+    $ CPUPROFILE_REALTIME=1 ruby my_app.rb
+
 
 === Reporting
 
