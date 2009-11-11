@@ -1,5 +1,11 @@
 #include <assert.h>
 #include <ruby.h>
+
+void ProfilerGcMark(void (*cb)(VALUE));
+int ProfilerStart(const char*);
+void ProfilerStop();
+void ProfilerFlush();
+
 static VALUE Iallocate;
 static VALUE I__send__;
 
@@ -15,8 +21,10 @@ static VALUE I__send__;
   }
 
 #ifdef RUBY18
-  #include <node.h>
   #include <env.h>
+  #include <node.h>
+  #include <setjmp.h>
+  #include <signal.h>
 
   int
   rb_stack_trace(void** result, int max_depth)
@@ -75,8 +83,8 @@ static VALUE I__send__;
 #endif
 
 #ifdef RUBY19
-  #include <vm_core.h>
   #include <iseq.h>
+  #include <vm_core.h>
 
   int
   rb_stack_trace(void** result, int max_depth)
