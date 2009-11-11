@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name = 'perftools.rb'
-  s.version = '0.3.8'
+  s.version = '0.3.9'
   s.date = '2009-11-11'
   s.rubyforge_project = 'perftools-rb'
   s.summary = 'google-perftools for ruby code'
