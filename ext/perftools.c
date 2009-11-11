@@ -27,6 +27,16 @@ static VALUE Isend;
   #include <setjmp.h>
   #include <signal.h>
 
+  static jmp_buf saved_location;
+  static sig_t saved_handler = NULL;
+
+  void
+  segv_handler(int sig)
+  {
+    assert(saved_handler);
+    _longjmp(saved_location, 1);
+  }
+
   int
   rb_stack_trace(void** result, int max_depth)
   {
@@ -46,6 +56,17 @@ static VALUE Isend;
       return 1;
     }
     #endif
+
+    // should not be possible to get here and already have a saved signal handler
+    assert(!saved_handler);
+
+    // ruby_frame is occasionally inconsistent, so temporarily catch segfaults
+    saved_handler = signal(SIGSEGV, segv_handler);
+    if (_setjmp(saved_location)) {
+      signal(SIGSEGV, saved_handler);
+      saved_handler = NULL;
+      return 0;
+    }
 
     /*
     // XXX does it make sense to track allocations or not?
@@ -77,6 +98,9 @@ static VALUE Isend;
         SAVE_FRAME();
       }
     }
+
+    signal(SIGSEGV, saved_handler);
+    saved_handler = NULL;
 
     assert(depth <= max_depth);
     return depth;
