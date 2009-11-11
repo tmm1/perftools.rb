@@ -8,9 +8,10 @@ void ProfilerFlush();
 
 static VALUE Iallocate;
 static VALUE I__send__;
+static VALUE Isend;
 
 #define SAVE_FRAME() \
-  if (method && method != I__send__) { \
+  if (method && method != I__send__ && !(method == Isend && klass == rb_cObject)) { \
     if (self && FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) \
       result[depth++] = (void*) self; \
     else \
@@ -224,6 +225,7 @@ Init_perftools()
   bProfilerRunning = Qfalse;
   Iallocate = rb_intern("allocate");
   I__send__ = rb_intern("__send__");
+  Isend = rb_intern("send");
 
   rb_define_singleton_method(cCpuProfiler, "running?", cpuprofiler_running_p, 0);
   rb_define_singleton_method(cCpuProfiler, "start", cpuprofiler_start, 1);
