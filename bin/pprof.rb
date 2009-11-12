@@ -1,3 +1,4 @@
 #!/usr/bin/env ruby
-cmd = "#{File.dirname(__FILE__)}/pprof #{`which ruby`.strip} #{ARGV.join(" ")}"
+require 'rbconfig'
+cmd = "#{File.dirname(__FILE__)}/pprof #{Config::CONFIG['bindir']}/#{Config::CONFIG['ruby_install_name']} #{ARGV.join(" ")}"
 exec(cmd)
