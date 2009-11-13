@@ -54,7 +54,7 @@ Dir.chdir('src') do
       end
     end
 
-    sys("sed -i -e 's,SpinLock,ISpinLock,g' src/*.{cc,h} src/base/*.{cc,h}")
+    sys("sed -i -e 's,SpinLock,ISpinLock,g' src/*.cc src/*.h src/base/*.cc src/base/*.h")
     sys("git commit -am 'rename spinlock'") if ENV['DEV']
   end
 
