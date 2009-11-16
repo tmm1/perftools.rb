@@ -108,8 +108,8 @@ static VALUE Isend;
 #endif
 
 #ifdef RUBY19
-  #include <iseq.h>
   #include <vm_core.h>
+  #include <iseq.h>
 
   int
   rb_stack_trace(void** result, int max_depth)
