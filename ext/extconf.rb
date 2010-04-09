@@ -88,6 +88,7 @@ if RUBY_VERSION >= "1.9"
   add_define 'RUBY19'
 
   hdrs = proc {
+    have_header("method.h") # exists on 1.9.2
     have_header("vm_core.h") and
     have_header("iseq.h") and
     have_header("insns.inc") and
