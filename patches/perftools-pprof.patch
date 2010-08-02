@@ -30,11 +30,13 @@ index b5ef29a..25b956d 100755
    # Remove uniniteresting stack items
    $profile = RemoveUninterestingFrames($symbols, $profile);
  
-@@ -1927,6 +1927,7 @@ sub RemoveUninterestingFrames {
+@@ -1927,6 +1927,9 @@ sub RemoveUninterestingFrames {
  		      'ProfileData::prof_handler',  # historical
  		      'CpuProfiler::prof_handler',
                        '__FRAME_END__',
 +		      'PerfTools::CpuProfiler.start',
++		      'Array#each',
++		      'Proc#call',
  		      '__pthread_sighandler',
  		      '__restore') {
        $skip{$name} = 1;
