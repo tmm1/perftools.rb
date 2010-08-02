@@ -29,6 +29,10 @@ google-perftools for ruby code
 
     $ CPUPROFILE_REALTIME=1 ruby my_app.rb
 
+  Profile object allocations instead of cpu/wall time:
+
+    $ CPUPROFILE_OBJECTS=1 ruby my_app.rb
+
 
 === Reporting
 

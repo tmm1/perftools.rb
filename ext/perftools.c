@@ -5,6 +5,7 @@ void ProfilerGcMark(void (*cb)(VALUE));
 int ProfilerStart(const char*);
 void ProfilerStop();
 void ProfilerFlush();
+void ProfilerRecord(int, void*, void*);
 
 static VALUE Iallocate;
 static VALUE I__send__;
@@ -198,18 +199,23 @@ static VALUE Isend;
   #endif
 #endif
 
+static VALUE objprofiler_setup();
+static VALUE objprofiler_teardown();
+
+/* CpuProfiler */
+
 static VALUE cPerfTools;
 static VALUE cCpuProfiler;
 static VALUE bProfilerRunning;
 static VALUE gc_hook;
 
-VALUE
+static VALUE
 cpuprofiler_running_p(VALUE self)
 {
   return bProfilerRunning;
 }
 
-VALUE
+static VALUE
 cpuprofiler_stop(VALUE self)
 {
   if (!bProfilerRunning)
@@ -218,16 +224,23 @@ cpuprofiler_stop(VALUE self)
   bProfilerRunning = Qfalse;
   ProfilerStop();
   ProfilerFlush();
+
+  if (getenv("CPUPROFILE_OBJECTS"))
+    objprofiler_teardown();
+
   return Qtrue;
 }
 
-VALUE
+static VALUE
 cpuprofiler_start(VALUE self, VALUE filename)
 {
   StringValue(filename);
 
   if (bProfilerRunning)
     return Qfalse;
+
+  if (getenv("CPUPROFILE_OBJECTS"))
+    objprofiler_setup();
 
   ProfilerStart(RSTRING_PTR(filename));
   bProfilerRunning = Qtrue;
@@ -246,15 +259,145 @@ cpuprofiler_gc_mark()
   ProfilerGcMark(rb_gc_mark);
 }
 
+/* ObjProfiler */
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif
+
+#include <assert.h>
+#include <ucontext.h>
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+
+static VALUE bObjProfilerRunning;
+#define NUM_ORIG_BYTES 2
+
+struct {
+  void *location;
+  unsigned char value;
+} orig_bytes[NUM_ORIG_BYTES];
+
+static inline void *
+page_align(void *addr) {
+  assert(addr != NULL);
+  return (void *)((size_t)addr & ~(0xFFFF));
+}
+
+static void
+copy_instructions(void *dest, void *src, size_t count) {
+  assert(dest != NULL);
+  assert(src != NULL);
+
+  void *aligned_addr = page_align(dest);
+  if (mprotect(aligned_addr, (dest - aligned_addr) + count, PROT_READ|PROT_WRITE|PROT_EXEC) != 0)
+    perror("mprotect");
+  memcpy(dest, src, count);
+}
+
+static inline void**
+uc_get_ip(ucontext_t *uc) {
+  #if defined(__FreeBSD__)
+    return (void**)&uc->uc_mcontext.mc_rip;
+  #elif defined(__dietlibc__)
+    return (void**)&uc->uc_mcontext.rip;
+  #elif defined(__APPLE__)
+    return (void**)&uc->uc_mcontext->__ss.__rip;
+  #else
+    return (void**)&uc->uc_mcontext.gregs[REG_RIP];
+  #endif
+}
+
+static void
+trap_handler(int sig, siginfo_t *info, void *data) {
+  int i;
+  ucontext_t *uc = (ucontext_t *)data;
+  void **ip = uc_get_ip(uc);
+
+  // printf("signal: %d, addr: %p, ip: %p\n", signal, info->si_addr, *ip);
+
+  for (i=0; i<NUM_ORIG_BYTES; i++) {
+    if (orig_bytes[i].location == *ip-1) {
+      // restore original byte
+      copy_instructions(orig_bytes[i].location, &orig_bytes[i].value, 1);
+
+      // setup next breakpoint
+      copy_instructions(orig_bytes[(i+1)%NUM_ORIG_BYTES].location, "\xCC", 1);
+
+      // first breakpoint is the notification
+      if (i == 0)
+        ProfilerRecord(sig, info, data);
+
+      // reset instruction pointer
+      *ip -= 1;
+
+      break;
+    }
+  }
+}
+
+static VALUE
+objprofiler_setup()
+{
+  if (bObjProfilerRunning)
+    return Qtrue;
+
+  int i;
+  struct sigaction sig = { .sa_sigaction = trap_handler, .sa_flags = SA_SIGINFO };
+  sigemptyset(&sig.sa_mask);
+  sigaction(SIGTRAP, &sig, NULL);
+
+  for (i=0; i<NUM_ORIG_BYTES; i++) {
+    orig_bytes[i].location = rb_newobj + i;
+    orig_bytes[i].value    = ((unsigned char*)rb_newobj)[i];
+    copy_instructions(rb_newobj + i, "\xCC", 1);
+  }
+
+  // setenv("CPUPROFILE_OBJECTS", "1", 1);
+  bObjProfilerRunning = Qtrue;
+  return Qtrue;
+}
+
+static VALUE
+objprofiler_teardown()
+{
+  if (!bObjProfilerRunning)
+    return Qfalse;
+
+  int i;
+  struct sigaction sig = { .sa_handler = SIG_IGN };
+  sigemptyset(&sig.sa_mask);
+  sigaction(SIGTRAP, &sig, NULL);
+
+  for (i=0; i<NUM_ORIG_BYTES; i++) {
+    copy_instructions(orig_bytes[i].location, &orig_bytes[i].value, 1);
+  }
+
+  // unsetenv("CPUPROFILE_OBJECTS");
+  bObjProfilerRunning = Qfalse;
+  return Qtrue;
+}
+
+/* Init */
+
 void
 Init_perftools()
 {
   cPerfTools = rb_define_class("PerfTools", rb_cObject);
   cCpuProfiler = rb_define_class_under(cPerfTools, "CpuProfiler", rb_cObject);
-  bProfilerRunning = Qfalse;
+
   Iallocate = rb_intern("allocate");
   I__send__ = rb_intern("__send__");
   Isend = rb_intern("send");
+
+  bObjProfilerRunning = bProfilerRunning = Qfalse;
 
   rb_define_singleton_method(cCpuProfiler, "running?", cpuprofiler_running_p, 0);
   rb_define_singleton_method(cCpuProfiler, "start", cpuprofiler_start, 1);
@@ -262,4 +405,7 @@ Init_perftools()
 
   gc_hook = Data_Wrap_Struct(cCpuProfiler, cpuprofiler_gc_mark, NULL, NULL);
   rb_global_variable(&gc_hook);
+
+  if (getenv("CPUPROFILE") && getenv("CPUPROFILE_OBJECTS"))
+    objprofiler_setup();
 }
