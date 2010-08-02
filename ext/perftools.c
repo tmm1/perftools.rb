@@ -281,7 +281,7 @@ static VALUE bObjProfilerRunning;
 #define NUM_ORIG_BYTES 2
 
 struct {
-  void *location;
+  char *location;
   unsigned char value;
 } orig_bytes[NUM_ORIG_BYTES];
 
@@ -292,14 +292,11 @@ page_align(void *addr) {
 }
 
 static void
-copy_instructions(void *dest, void *src, size_t count) {
-  assert(dest != NULL);
-  assert(src != NULL);
-
-  void *aligned_addr = page_align(dest);
-  if (mprotect(aligned_addr, (dest - aligned_addr) + count, PROT_READ|PROT_WRITE|PROT_EXEC) != 0)
+unprotect_page(void *addr) {
+  assert(addr != NULL);
+  void *aligned_addr = page_align(addr);
+  if (mprotect(aligned_addr, (addr - aligned_addr), PROT_READ|PROT_WRITE|PROT_EXEC) != 0)
     perror("mprotect");
-  memcpy(dest, src, count);
 }
 
 static inline void**
@@ -326,10 +323,10 @@ trap_handler(int sig, siginfo_t *info, void *data) {
   for (i=0; i<NUM_ORIG_BYTES; i++) {
     if (orig_bytes[i].location == *ip-1) {
       // restore original byte
-      copy_instructions(orig_bytes[i].location, &orig_bytes[i].value, 1);
+      orig_bytes[i].location[0] = orig_bytes[i].value;
 
       // setup next breakpoint
-      copy_instructions(orig_bytes[(i+1)%NUM_ORIG_BYTES].location, "\xCC", 1);
+      orig_bytes[(i+1)%NUM_ORIG_BYTES].location[0] = '\xCC';
 
       // first breakpoint is the notification
       if (i == 0)
@@ -354,10 +351,12 @@ objprofiler_setup()
   sigemptyset(&sig.sa_mask);
   sigaction(SIGTRAP, &sig, NULL);
 
+  unprotect_page(rb_newobj);
+
   for (i=0; i<NUM_ORIG_BYTES; i++) {
-    orig_bytes[i].location = rb_newobj + i;
+    orig_bytes[i].location = (char *)(rb_newobj + i);
     orig_bytes[i].value    = ((unsigned char*)rb_newobj)[i];
-    copy_instructions(rb_newobj + i, "\xCC", 1);
+    orig_bytes[i].location[0] = '\xCC';
   }
 
   // setenv("CPUPROFILE_OBJECTS", "1", 1);
@@ -377,7 +376,7 @@ objprofiler_teardown()
   sigaction(SIGTRAP, &sig, NULL);
 
   for (i=0; i<NUM_ORIG_BYTES; i++) {
-    copy_instructions(orig_bytes[i].location, &orig_bytes[i].value, 1);
+    orig_bytes[i].location[0] = orig_bytes[i].value;
   }
 
   // unsetenv("CPUPROFILE_OBJECTS");
