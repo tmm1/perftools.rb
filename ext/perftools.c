@@ -306,7 +306,11 @@ uc_get_ip(ucontext_t *uc) {
   #elif defined(__dietlibc__)
     return (void**)&uc->uc_mcontext.rip;
   #elif defined(__APPLE__)
-    return (void**)&uc->uc_mcontext->__ss.__rip;
+    #if defined(__LP64__)
+      return (void**)&uc->uc_mcontext->__ss.__rip;
+    #else
+      return (void**)&uc->uc_mcontext->__ss.__eip;
+    #endif
   #else
     return (void**)&uc->uc_mcontext.gregs[REG_RIP];
   #endif
