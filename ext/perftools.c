@@ -1,3 +1,10 @@
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif
+
 #include <assert.h>
 #include <ruby.h>
 
@@ -260,13 +267,6 @@ cpuprofiler_gc_mark()
 }
 
 /* ObjProfiler */
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600
-#endif
 
 #include <assert.h>
 #include <ucontext.h>
