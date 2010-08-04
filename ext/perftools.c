@@ -1,3 +1,5 @@
+#include <ruby.h> // include this before anything else, as it defines _GNU_SOURCE etc
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -6,7 +8,6 @@
 #endif
 
 #include <assert.h>
-#include <ruby.h>
 
 void ProfilerGcMark(void (*cb)(VALUE));
 int ProfilerStart(const char*);
