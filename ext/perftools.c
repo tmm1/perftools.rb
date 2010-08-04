@@ -10,10 +10,11 @@
 #include <assert.h>
 
 void ProfilerGcMark(void (*cb)(VALUE));
-int ProfilerStart(const char*);
+int  ProfilerStart(const char*);
 void ProfilerStop();
 void ProfilerFlush();
 void ProfilerRecord(int, void*, void*);
+int  ProfilingIsEnabledForAllThreads();
 
 static VALUE Iallocate;
 static VALUE I__send__;
@@ -214,6 +215,7 @@ static VALUE objprofiler_teardown();
 
 static VALUE cPerfTools;
 static VALUE cCpuProfiler;
+static VALUE eError;
 static VALUE bProfilerRunning;
 static VALUE gc_hook;
 
@@ -230,11 +232,9 @@ cpuprofiler_stop(VALUE self)
     return Qfalse;
 
   bProfilerRunning = Qfalse;
+  objprofiler_teardown();
   ProfilerStop();
   ProfilerFlush();
-
-  if (getenv("CPUPROFILE_OBJECTS"))
-    objprofiler_teardown();
 
   return Qtrue;
 }
@@ -245,13 +245,16 @@ cpuprofiler_start(VALUE self, VALUE filename)
   StringValue(filename);
 
   if (bProfilerRunning)
-    return Qfalse;
+    rb_raise(eError, "profiler is already running");
 
   if (getenv("CPUPROFILE_OBJECTS"))
     objprofiler_setup();
 
-  ProfilerStart(RSTRING_PTR(filename));
-  bProfilerRunning = Qtrue;
+  if (ProfilerStart(RSTRING_PTR(filename))) {
+    bProfilerRunning = Qtrue;
+  } else {
+    rb_raise(eError, "profiler could not be started");
+  }
 
   if (rb_block_given_p()) {
     rb_yield(Qnil);
@@ -392,10 +395,17 @@ objprofiler_teardown()
 
 /* Init */
 
+static void
+profiler_at_exit(VALUE self)
+{
+  cpuprofiler_stop(self);
+}
+
 void
 Init_perftools()
 {
   cPerfTools = rb_define_class("PerfTools", rb_cObject);
+  eError = rb_define_class_under(cPerfTools, "Error", rb_eStandardError);
   cCpuProfiler = rb_define_class_under(cPerfTools, "CpuProfiler", rb_cObject);
 
   Iallocate = rb_intern("allocate");
@@ -411,6 +421,13 @@ Init_perftools()
   gc_hook = Data_Wrap_Struct(cCpuProfiler, cpuprofiler_gc_mark, NULL, NULL);
   rb_global_variable(&gc_hook);
 
-  if (getenv("CPUPROFILE") && getenv("CPUPROFILE_OBJECTS"))
-    objprofiler_setup();
+  if (ProfilingIsEnabledForAllThreads()) { // profiler is already running?
+    bProfilerRunning = Qtrue;
+
+    if (getenv("CPUPROFILE_OBJECTS")) {    // want to profile objects
+      objprofiler_setup();
+    }
+
+    rb_set_end_proc(profiler_at_exit, 0);  // make sure to cleanup before the VM shuts down
+  }
 }
