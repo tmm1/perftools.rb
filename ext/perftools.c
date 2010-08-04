@@ -292,35 +292,36 @@ page_align(void *addr) {
 }
 
 static void
-unprotect_page(void *addr) {
+unprotect_page(char *addr) {
   assert(addr != NULL);
-  void *aligned_addr = page_align(addr);
+  char *aligned_addr = page_align(addr);
   if (mprotect(aligned_addr, (addr - aligned_addr), PROT_READ|PROT_WRITE|PROT_EXEC) != 0)
     perror("mprotect");
 }
 
-static inline void**
+static inline char**
 uc_get_ip(ucontext_t *uc) {
-  #if defined(__FreeBSD__)
-    return (void**)&uc->uc_mcontext.mc_rip;
-  #elif defined(__dietlibc__)
-    return (void**)&uc->uc_mcontext.rip;
-  #elif defined(__APPLE__)
-    #if defined(__LP64__)
-      return (void**)&uc->uc_mcontext->__ss.__rip;
-    #else
-      return (void**)&uc->uc_mcontext->__ss.__eip;
-    #endif
-  #else
-    return (void**)&uc->uc_mcontext.gregs[REG_RIP];
-  #endif
+# if defined(__FreeBSD__)
+#  define program_counter uc_mcontext.mc_rip
+# elif defined(__dietlibc__)
+#  define program_counter uc_mcontext.rip
+# elif defined(__APPLE__)
+#   ifdef __LP64__
+#     define program_counter uc_mcontext->__ss.__rip
+#   else
+#     define program_counter uc_mcontext->__ss.__eip
+#   endif
+# else
+#  define program_counter uc_mcontext.gregs[REG_RIP]
+# endif
+  return (char**)&uc->program_counter;
 }
 
 static void
 trap_handler(int sig, siginfo_t *info, void *data) {
   int i;
   ucontext_t *uc = (ucontext_t *)data;
-  void **ip = uc_get_ip(uc);
+  char **ip = uc_get_ip(uc);
 
   // printf("signal: %d, addr: %p, ip: %p\n", signal, info->si_addr, *ip);
 
@@ -355,10 +356,10 @@ objprofiler_setup()
   sigemptyset(&sig.sa_mask);
   sigaction(SIGTRAP, &sig, NULL);
 
-  unprotect_page(rb_newobj);
+  unprotect_page((char*)rb_newobj);
 
   for (i=0; i<NUM_ORIG_BYTES; i++) {
-    orig_bytes[i].location = (char *)(rb_newobj + i);
+    orig_bytes[i].location = (char *)rb_newobj + i;
     orig_bytes[i].value    = ((unsigned char*)rb_newobj)[i];
     orig_bytes[i].location[0] = '\xCC';
   }
