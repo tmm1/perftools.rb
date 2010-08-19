@@ -159,6 +159,8 @@ static VALUE Isend;
         case VM_FRAME_MAGIC_CFUNC:
           self = cfp->self;
 #ifdef HAVE_METHOD_H
+          if (!cfp->me) break;
+
           klass = cfp->me->klass;
           method = cfp->me->called_id;
 #else
