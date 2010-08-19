@@ -319,7 +319,11 @@ uc_get_ip(ucontext_t *uc) {
 #     define program_counter uc_mcontext->__ss.__eip
 #   endif
 # else
-#  define program_counter uc_mcontext.gregs[REG_RIP]
+#    ifdef REG_RIP
+#      define program_counter uc_mcontext.gregs[REG_RIP]
+#    else
+#      define program_counter uc_mcontext.gregs[REG_EIP]
+#    endif
 # endif
   return (char**)&uc->program_counter;
 }
