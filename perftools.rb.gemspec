@@ -1,7 +1,7 @@
 spec = Gem::Specification.new do |s|
   s.name = 'perftools.rb'
-  s.version = '0.4.8'
-  s.date = '2010-08-03'
+  s.version = '0.5.0'
+  s.date = '2010-08-19'
   s.rubyforge_project = 'perftools-rb'
   s.summary = 'google-perftools for ruby code'
   s.description = 'A sampling profiler for ruby code based on patches to google-perftools'
