@@ -309,7 +309,11 @@ unprotect_page(char *addr) {
 static inline char**
 uc_get_ip(ucontext_t *uc) {
 # if defined(__FreeBSD__)
-#  define program_counter uc_mcontext.mc_rip
+#   ifdef __i386__
+#     define program_counter uc_mcontext.mc_eip
+#   else
+#     define program_counter uc_mcontext.mc_rip
+#   endif
 # elif defined(__dietlibc__)
 #  define program_counter uc_mcontext.rip
 # elif defined(__APPLE__)
