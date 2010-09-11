@@ -27,6 +27,7 @@ perftools = File.basename('google-perftools-1.4.tar.gz')
 dir = File.basename(perftools, '.tar.gz')
 
 puts "(I'm about to compile google-perftools.. this will definitely take a while)"
+ENV["PATCH_GET"] = '0'
 
 Dir.chdir('src') do
   FileUtils.rm_rf(dir) if File.exists?(dir)
