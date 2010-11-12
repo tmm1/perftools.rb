@@ -349,7 +349,7 @@ methprofiler_setup()
   if (bMethProfilerRunning)
     return Qtrue;
 
-  rb_add_event_hook(event_handler, RUBY_EVENT_CALL);
+  rb_add_event_hook(event_handler, RUBY_EVENT_CALL|RUBY_EVENT_C_CALL);
 
   bMethProfilerRunning = Qtrue;
   return Qtrue;
