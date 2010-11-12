@@ -44,6 +44,7 @@ static VALUE Isend;
   void
   segv_handler(int sig)
   {
+    fprintf(stderr, "*** Caught a segfault during stack trace sampling!\n");
     assert(saved_handler);
     _longjmp(saved_location, 1);
   }
@@ -86,13 +87,13 @@ static VALUE Isend;
     }
 
     // XXX SIGPROF can come in while ruby_frame is in an inconsistent state (rb_call0), so we ignore the top-most frame
-    if (frame->last_func) {
+    if (frame->last_func && frame->last_class) {
       self = frame->self;
       klass = frame->last_class;
       method = frame->last_func;
       SAVE_FRAME();
     }
-    */
+    /**/
 
     for (; frame && (n = frame->node); frame = frame->prev) {
       if (frame->prev && frame->prev->last_func) {
