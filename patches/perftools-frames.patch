@@ -1,0 +1,13 @@
+diff --git a/src/profiledata.h b/src/profiledata.h
+index ccdf96f..0517614 100644
+--- a/src/profiledata.h
++++ b/src/profiledata.h
+@@ -106,7 +106,7 @@ class ProfileData {
+     int      frequency_;                  // Sample frequency.
+   };
+ 
+-  static const int kMaxStackDepth = 64;  // Max stack depth stored in profile
++  static const int kMaxStackDepth = 300;  // Max stack depth stored in profile
+ 
+   ProfileData();
+   ~ProfileData();
