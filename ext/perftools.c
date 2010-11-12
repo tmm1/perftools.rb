@@ -213,6 +213,8 @@ static VALUE Isend;
 
 static VALUE objprofiler_setup();
 static VALUE objprofiler_teardown();
+static VALUE methprofiler_setup();
+static VALUE methprofiler_teardown();
 
 /* CpuProfiler */
 
@@ -236,6 +238,7 @@ cpuprofiler_stop(VALUE self)
 
   bProfilerRunning = Qfalse;
   objprofiler_teardown();
+  methprofiler_teardown();
   ProfilerStop();
   ProfilerFlush();
 
@@ -252,6 +255,8 @@ cpuprofiler_start(VALUE self, VALUE filename)
 
   if (getenv("CPUPROFILE_OBJECTS"))
     objprofiler_setup();
+  else if (getenv("CPUPROFILE_METHODS"))
+    methprofiler_setup();
 
   if (ProfilerStart(RSTRING_PTR(filename))) {
     bProfilerRunning = Qtrue;
@@ -285,6 +290,7 @@ cpuprofiler_gc_mark()
 #include <sys/mman.h>
 
 static VALUE bObjProfilerRunning;
+static VALUE bMethProfilerRunning;
 #define NUM_ORIG_BYTES 2
 
 struct {
@@ -330,6 +336,35 @@ uc_get_ip(ucontext_t *uc) {
 #    endif
 # endif
   return (char**)&uc->program_counter;
+}
+
+static void
+event_handler(rb_event_t event, NODE *node, VALUE self, ID id, VALUE klass) {
+  ProfilerRecord(0, NULL, NULL);
+}
+
+static VALUE
+methprofiler_setup()
+{
+  if (bMethProfilerRunning)
+    return Qtrue;
+
+  rb_add_event_hook(event_handler, RUBY_EVENT_CALL);
+
+  bMethProfilerRunning = Qtrue;
+  return Qtrue;
+}
+
+static VALUE
+methprofiler_teardown()
+{
+  if (!bMethProfilerRunning)
+    return Qfalse;
+
+  rb_remove_event_hook(event_handler);
+
+  bMethProfilerRunning = Qfalse;
+  return Qtrue;
 }
 
 static void
@@ -423,7 +458,7 @@ Init_perftools()
   I__send__ = rb_intern("__send__");
   Isend = rb_intern("send");
 
-  bObjProfilerRunning = bProfilerRunning = Qfalse;
+  bMethProfilerRunning = bObjProfilerRunning = bProfilerRunning = Qfalse;
 
   rb_define_singleton_method(cCpuProfiler, "running?", cpuprofiler_running_p, 0);
   rb_define_singleton_method(cCpuProfiler, "start", cpuprofiler_start, 1);
@@ -437,6 +472,8 @@ Init_perftools()
 
     if (getenv("CPUPROFILE_OBJECTS")) {    // want to profile objects
       objprofiler_setup();
+    } else if (getenv("CPUPROFILE_METHODS")) {
+      methprofiler_setup();
     }
 
     rb_set_end_proc(profiler_at_exit, 0);  // make sure to cleanup before the VM shuts down

@@ -33,6 +33,10 @@ google-perftools for ruby code
 
     $ CPUPROFILE_OBJECTS=1 ruby my_app.rb
 
+  Profile method calls:
+
+    $ CPUPROFILE_METHODS=1 ruby my_app.rb
+
 
 === Reporting
 

@@ -12,7 +12,7 @@ index 619b980..2ecf2c0 100644
  }
  
  void ProfileHandler::StartTimer() {
-+  if (getenv("CPUPROFILE_OBJECTS")) return;
++  if (getenv("CPUPROFILE_OBJECTS") || getenv("CPUPROFILE_METHODS")) return;
 +
    struct itimerval timer;
    timer.it_interval.tv_sec = 0;
@@ -21,7 +21,7 @@ index 619b980..2ecf2c0 100644
  }
  
  void ProfileHandler::StopTimer() {
-+  if (getenv("CPUPROFILE_OBJECTS")) return;
++  if (getenv("CPUPROFILE_OBJECTS") || getenv("CPUPROFILE_METHODS")) return;
 +
    struct itimerval timer;
    memset(&timer, 0, sizeof timer);
@@ -29,7 +29,7 @@ index 619b980..2ecf2c0 100644
  }
  
  bool ProfileHandler::IsTimerRunning() {
-+  if (getenv("CPUPROFILE_OBJECTS")) return false;
++  if (getenv("CPUPROFILE_OBJECTS") || getenv("CPUPROFILE_METHODS")) return false;
 +
    struct itimerval current_timer;
    RAW_CHECK(0 == getitimer(realtime_ ? ITIMER_REAL : ITIMER_PROF, &current_timer), "getitimer");
@@ -38,7 +38,7 @@ index 619b980..2ecf2c0 100644
  }
  
  void ProfileHandler::EnableHandler() {
-+  if (getenv("CPUPROFILE_OBJECTS")) return;
++  if (getenv("CPUPROFILE_OBJECTS") || getenv("CPUPROFILE_METHODS")) return;
 +
    struct sigaction sa;
    sa.sa_sigaction = SignalHandler;
@@ -47,7 +47,7 @@ index 619b980..2ecf2c0 100644
  }
  
  void ProfileHandler::DisableHandler() {
-+  if (getenv("CPUPROFILE_OBJECTS")) return;
++  if (getenv("CPUPROFILE_OBJECTS") || getenv("CPUPROFILE_METHODS")) return;
 +
    struct sigaction sa;
    sa.sa_handler = SIG_IGN;
