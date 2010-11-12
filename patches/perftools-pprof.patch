@@ -1,8 +1,8 @@
 diff --git a/src/pprof b/src/pprof
-index b5ef29a..25b956d 100755
+index e67e42e..ee9927c 100755
 --- a/src/pprof
 +++ b/src/pprof
-@@ -530,7 +530,8 @@ sub Main() {
+@@ -560,7 +560,8 @@ sub Main() {
    my $symbol_map = {};
  
    # Read one profile, pick the last item on the list
@@ -12,7 +12,7 @@ index b5ef29a..25b956d 100755
    my $profile = $data->{profile};
    my $pcs = $data->{pcs};
    my $libs = $data->{libs};   # Info about main program and shared libraries
-@@ -567,6 +568,17 @@ sub Main() {
+@@ -601,6 +602,17 @@ sub Main() {
      $symbols = ExtractSymbols($libs, $pcs);
    }
  
@@ -30,18 +30,18 @@ index b5ef29a..25b956d 100755
    # Remove uniniteresting stack items
    $profile = RemoveUninterestingFrames($symbols, $profile);
  
-@@ -1927,6 +1927,10 @@ sub RemoveUninterestingFrames {
- 		      'ProfileData::prof_handler',  # historical
- 		      'CpuProfiler::prof_handler',
+@@ -2425,6 +2437,10 @@ sub RemoveUninterestingFrames {
+     foreach my $name ('ProfileData::Add',           # historical
+                       'ProfileData::prof_handler',  # historical
+                       'CpuProfiler::prof_handler',
++                      'PerfTools::CpuProfiler.start',
++                      'Array#each',
++                      'Proc#call',
++                      'Class#new',
                        '__FRAME_END__',
-+		      'PerfTools::CpuProfiler.start',
-+		      'Array#each',
-+		      'Proc#call',
-+		      'Class#new',
- 		      '__pthread_sighandler',
- 		      '__restore') {
-       $skip{$name} = 1;
-@@ -1935,6 +1936,7 @@ sub RemoveUninterestingFrames {
+                       '__pthread_sighandler',
+                       '__restore') {
+@@ -2434,6 +2450,7 @@ sub RemoveUninterestingFrames {
      # Nothing skipped for unknown types
    }
  
@@ -49,7 +49,7 @@ index b5ef29a..25b956d 100755
    if ($main::profile_type eq 'cpu') {
      # If all the second-youngest program counters are the same,
      # this STRONGLY suggests that it is an artifact of measurement,
-@@ -1959,6 +1961,7 @@ sub RemoveUninterestingFrames {
+@@ -2458,6 +2475,7 @@ sub RemoveUninterestingFrames {
        $profile = $result;
      }
    }

@@ -264,20 +264,3 @@ index d158eea..e8509fe 100644
  # error Cannot calculate stack trace: will need to write for your environment
  #endif
 +#endif
-diff --git a/src/stacktrace_with_context.cc b/src/stacktrace_with_context.cc
-index ed7bfe3..a90c070 100644
---- a/src/stacktrace_with_context.cc
-+++ b/src/stacktrace_with_context.cc
-@@ -41,6 +41,7 @@
- // may inline this code anyway. Let's hope they respect
- // ATTRIBUTE_NOINLINE.
- 
-+#ifndef BUILD_FOR_RUBY
- #include <config.h>
- #include <google/stacktrace.h>
- #include "stacktrace_config.h"
-@@ -59,3 +60,4 @@ int GetStackTraceWithContext(void** result, int max_depth,
-   return GetStackTrace(result, max_depth, skip_count + 1);
- }
- #endif
-+#endif
