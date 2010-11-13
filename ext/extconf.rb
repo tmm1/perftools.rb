@@ -3,7 +3,7 @@ CWD = File.expand_path(File.dirname(__FILE__))
 def sys(cmd)
   puts "  -- #{cmd}"
   unless ret = xsystem(cmd)
-    raise "#{cmd} failed, please report to perftools@tmm1.net with pastie.org link to #{CWD}/mkmf.log and #{CWD}/src/google-perftools-1.4/config.log"
+    raise "#{cmd} failed, please report to perftools@tmm1.net with pastie.org link to #{CWD}/mkmf.log and #{CWD}/src/google-perftools-1.6/config.log"
   end
   ret
 end
@@ -23,7 +23,7 @@ if RUBY_VERSION >= "1.9"
   end
 end
 
-perftools = File.basename('google-perftools-1.4.tar.gz')
+perftools = File.basename('google-perftools-1.6.tar.gz')
 dir = File.basename(perftools, '.tar.gz')
 
 puts "(I'm about to compile google-perftools.. this will definitely take a while)"
@@ -45,9 +45,7 @@ Dir.chdir('src') do
       ['perftools-pprof', true],
       ['perftools-gc', true],
       ['perftools-osx', RUBY_PLATFORM =~ /darwin/],
-      ['perftools-osx-106', RUBY_PLATFORM =~ /darwin10/],
       ['perftools-debug', true],
-      ['perftools-realtime', true],
       ['perftools-objects', true],
       ['perftools-frames', true]
     ].each do |patch, apply|
