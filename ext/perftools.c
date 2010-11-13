@@ -339,10 +339,17 @@ uc_get_ip(ucontext_t *uc) {
   return (char**)&uc->program_counter;
 }
 
+#ifdef RB_EVENT_HOOKS_HAVE_CALLBACK_DATA
+static void
+event_handler(rb_event_flag_t event, VALUE data, VALUE self, ID id, VALUE klass) {
+  ProfilerRecord(0, NULL, NULL);
+}
+#else
 static void
 event_handler(rb_event_t event, NODE *node, VALUE self, ID id, VALUE klass) {
   ProfilerRecord(0, NULL, NULL);
 }
+#endif
 
 static VALUE
 methprofiler_setup()
@@ -350,7 +357,11 @@ methprofiler_setup()
   if (bMethProfilerRunning)
     return Qtrue;
 
+#ifdef RB_EVENT_HOOKS_HAVE_CALLBACK_DATA
+  rb_add_event_hook(event_handler, RUBY_EVENT_CALL|RUBY_EVENT_C_CALL, 0);
+#else
   rb_add_event_hook(event_handler, RUBY_EVENT_CALL|RUBY_EVENT_C_CALL);
+#endif
 
   bMethProfilerRunning = Qtrue;
   return Qtrue;
