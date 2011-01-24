@@ -15,10 +15,13 @@ if RUBY_VERSION >= "1.9"
   begin
     require "ruby_core_source"
   rescue LoadError
+    require 'rubygems/user_interaction' # for 1.9.1
     require 'rubygems/dependency_installer'
     installer = Gem::DependencyInstaller.new
     installer.install 'ruby_core_source'
+
     Gem.refresh
+    Gem.activate('ruby_core_source') # for 1.9.1
 
     require "ruby_core_source"
   end
