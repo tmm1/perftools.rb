@@ -93,7 +93,7 @@ static VALUE Isend;
       method = frame->last_func;
       SAVE_FRAME();
     }
-    /**/
+    */
 
     for (; frame && (n = frame->node); frame = frame->prev) {
       if (frame->prev && frame->prev->last_func) {
