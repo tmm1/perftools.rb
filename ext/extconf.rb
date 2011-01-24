@@ -15,11 +15,12 @@ if RUBY_VERSION >= "1.9"
   begin
     require "ruby_core_source"
   rescue LoadError
-    STDERR.puts "\n\n"
-    STDERR.puts "***************************************************************************************"
-    STDERR.puts "******************** PLEASE RUN gem install ruby_core_source FIRST ********************"
-    STDERR.puts "***************************************************************************************"
-    exit(1)
+    require 'rubygems/dependency_installer'
+    installer = Gem::DependencyInstaller.new
+    installer.install 'ruby_core_source'
+    Gem.refresh
+
+    require "ruby_core_source"
   end
 end
 
