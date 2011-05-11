@@ -36,7 +36,7 @@ ENV["PATCH_GET"] = '0'
 Dir.chdir('src') do
   FileUtils.rm_rf(dir) if File.exists?(dir)
 
-  sys("tar zxvf #{perftools}")
+  sys("tar zpxvf #{perftools}")
   Dir.chdir(dir) do
     if ENV['DEV']
       sys("git init")
