@@ -51,7 +51,8 @@ Dir.chdir('src') do
       ['perftools-osx', RUBY_PLATFORM =~ /darwin/],
       ['perftools-debug', true],
       ['perftools-objects', true],
-      ['perftools-frames', true]
+      ['perftools-frames', true],
+      ['perftools-stddef', true]
     ].each do |patch, apply|
       if apply
         sys("patch -p1 < ../../../patches/#{patch}.patch")
