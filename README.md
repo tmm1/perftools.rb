@@ -125,6 +125,8 @@ The sampling interval of the profiler can be adjusted to collect more
     sudo brew    install graphviz ghostscript # osx
     sudo apt-get install graphviz ps2pdf      # debian/ubuntu
 
+  If graphviz fails to build on OSX Lion, you may need to recompile libgd, [see here](https://github.com/mxcl/homebrew/issues/6645#issuecomment-1806807)
+
 ## Advantages over ruby-prof
 
 * Sampling profiler
