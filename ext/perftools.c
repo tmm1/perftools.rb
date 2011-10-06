@@ -123,6 +123,11 @@ static VALUE Isend;
   #include <vm_core.h>
   #include <iseq.h>
 
+// Fix compile error in ruby 1.9.3
+#ifdef RTYPEDDATA_DATA
+#define ruby_current_thread ((rb_thread_t *)RTYPEDDATA_DATA(rb_thread_current()))
+#endif
+
   int
   rb_stack_trace(void** result, int max_depth)
   {

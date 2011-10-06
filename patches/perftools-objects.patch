@@ -1,5 +1,5 @@
 diff --git a/src/profile-handler.cc b/src/profile-handler.cc
-index 5df5054..2335617 100644
+index dfc2e38..d3bfb42 100644
 --- a/src/profile-handler.cc
 +++ b/src/profile-handler.cc
 @@ -395,6 +395,8 @@ void ProfileHandler::GetState(ProfileHandlerState* state) {
@@ -47,7 +47,7 @@ index 5df5054..2335617 100644
    sa.sa_handler = SIG_IGN;
    sa.sa_flags = SA_RESTART;
 diff --git a/src/profiler.cc b/src/profiler.cc
-index f408cf8..7645c45 100644
+index 3363428..0043513 100644
 --- a/src/profiler.cc
 +++ b/src/profiler.cc
 @@ -102,6 +102,10 @@ class CpuProfiler {
@@ -72,7 +72,7 @@ index f408cf8..7645c45 100644
  };
  
  // Profile data structure singleton: Constructor will check to see if
-@@ -323,6 +323,10 @@ extern "C" PERFTOOLS_DLL_DECL void ProfilerFlush() {
+@@ -324,6 +324,10 @@ extern "C" PERFTOOLS_DLL_DECL void ProfilerFlush() {
  extern "C" PERFTOOLS_DLL_DECL void ProfilerGcMark(void (*cb)(VALUE)) {
    CpuProfiler::instance_.GcMark(cb);
  }

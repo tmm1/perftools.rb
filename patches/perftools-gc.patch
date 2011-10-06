@@ -1,5 +1,5 @@
 diff --git a/src/profiledata.cc b/src/profiledata.cc
-index e6240d9..b901ee8 100644
+index ea95493..582ec9a 100644
 --- a/src/profiledata.cc
 +++ b/src/profiledata.cc
 @@ -198,6 +198,29 @@ static void DumpProcSelfMaps(int fd) {
@@ -33,7 +33,7 @@ index e6240d9..b901ee8 100644
    if (!enabled()) {
      return;
 diff --git a/src/profiledata.h b/src/profiledata.h
-index 67c463d..a68e12f 100644
+index 2f013e6..1b3eb2e 100644
 --- a/src/profiledata.h
 +++ b/src/profiledata.h
 @@ -40,6 +40,12 @@
@@ -61,10 +61,10 @@ index 67c463d..a68e12f 100644
    static const int kAssociativity = 4;          // For hashtable
    static const int kBuckets = 1 << 10;          // For hashtable
 diff --git a/src/profiler.cc b/src/profiler.cc
-index d89a53a..37234b2 100644
+index b38602a..3363428 100644
 --- a/src/profiler.cc
 +++ b/src/profiler.cc
-@@ -87,6 +87,10 @@ class CpuProfiler {
+@@ -92,6 +92,10 @@ class CpuProfiler {
    // Write the data to disk (and continue profiling).
    void FlushTable();
  
@@ -75,7 +75,7 @@ index d89a53a..37234b2 100644
    bool Enabled();
  
    void GetCurrentState(ProfilerState* state);
-@@ -221,6 +225,16 @@ void CpuProfiler::FlushTable() {
+@@ -226,6 +230,16 @@ void CpuProfiler::FlushTable() {
    EnableHandler();
  }
  
@@ -92,7 +92,7 @@ index d89a53a..37234b2 100644
  bool CpuProfiler::Enabled() {
    SpinLockHolder cl(&lock_);
    return collector_.enabled();
-@@ -300,6 +314,12 @@ extern "C" PERFTOOLS_DLL_DECL void ProfilerFlush() {
+@@ -306,6 +320,12 @@ extern "C" PERFTOOLS_DLL_DECL void ProfilerFlush() {
    CpuProfiler::instance_.FlushTable();
  }
  
