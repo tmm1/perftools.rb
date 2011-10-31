@@ -1,8 +1,8 @@
 diff --git a/Makefile.in b/Makefile.in
-index 232d2ec..566d77c 100644
+index f3aa67e..5b73c77 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -1367,13 +1367,13 @@ AUTOMAKE = @AUTOMAKE@
+@@ -1511,13 +1511,13 @@ AUTOMAKE = @AUTOMAKE@
  AWK = @AWK@
  CC = @CC@
  CCDEPMODE = @CCDEPMODE@
@@ -19,10 +19,10 @@ index 232d2ec..566d77c 100644
  DEFS = @DEFS@
  DEPDIR = @DEPDIR@
 diff --git a/src/profile-handler.cc b/src/profile-handler.cc
-index e658d30..370d012 100644
+index 700b5c0..dfc2e38 100644
 --- a/src/profile-handler.cc
 +++ b/src/profile-handler.cc
-@@ -264,6 +264,11 @@ ProfileHandler::~ProfileHandler() {
+@@ -267,6 +267,11 @@ ProfileHandler::~ProfileHandler() {
  void ProfileHandler::RegisterThread() {
    SpinLockHolder cl(&control_lock_);
  
@@ -34,7 +34,7 @@ index e658d30..370d012 100644
    // We try to detect whether timers are being shared by setting a
    // timer in the first call to this function, then checking whether
    // it's set in the second call.
-@@ -305,6 +310,7 @@ void ProfileHandler::RegisterThread() {
+@@ -308,6 +313,7 @@ void ProfileHandler::RegisterThread() {
        StartTimer();
        break;
    }
@@ -197,7 +197,7 @@ index 5f2531b..ea95493 100644
  
    out_ = -1;
 diff --git a/src/profiledata.h b/src/profiledata.h
-index da7ea9e..67c463d 100644
+index 3521bac..2f013e6 100644
 --- a/src/profiledata.h
 +++ b/src/profiledata.h
 @@ -169,6 +169,7 @@ class ProfileData {
@@ -209,10 +209,10 @@ index da7ea9e..67c463d 100644
  
    // Move 'entry' to the eviction buffer.
 diff --git a/src/profiler.cc b/src/profiler.cc
-index 183a7c7..d89a53a 100644
+index a57953e..b38602a 100644
 --- a/src/profiler.cc
 +++ b/src/profiler.cc
-@@ -63,6 +63,12 @@ typedef int ucontext_t;   // just to quiet the compiler, mostly
+@@ -68,6 +68,12 @@ typedef int ucontext_t;   // just to quiet the compiler, mostly
  #include "conflict-signal.h"          /* used on msvc machines */
  #endif
  
@@ -225,17 +225,18 @@ index 183a7c7..d89a53a 100644
  using std::string;
  
  // Collects up all profile data.  This is a singleton, which is
-@@ -261,6 +267,9 @@ void CpuProfiler::prof_handler(int sig, siginfo_t*, void* signal_ucontext,
+@@ -266,6 +272,10 @@ void CpuProfiler::prof_handler(int sig, siginfo_t*, void* signal_ucontext,
        (*instance->filter_)(instance->filter_arg_)) {
      void* stack[ProfileData::kMaxStackDepth];
  
 +#ifdef BUILD_FOR_RUBY
 +    int depth = rb_stack_trace(stack, arraysize(stack));
 +#else
++
      // The top-most active routine doesn't show up as a normal
      // frame, but as the "pc" value in the signal handler context.
      stack[0] = GetPC(*reinterpret_cast<ucontext_t*>(signal_ucontext));
-@@ -274,8 +283,10 @@ void CpuProfiler::prof_handler(int sig, siginfo_t*, void* signal_ucontext,
+@@ -279,8 +289,10 @@ void CpuProfiler::prof_handler(int sig, siginfo_t*, void* signal_ucontext,
      int depth = GetStackTraceWithContext(stack + 1, arraysize(stack) - 1,
                                           2, signal_ucontext);
      depth++;  // To account for pc value in stack[0];
@@ -248,7 +249,7 @@ index 183a7c7..d89a53a 100644
  }
  
 diff --git a/src/stacktrace.cc b/src/stacktrace.cc
-index d158eea..e8509fe 100644
+index 175cdf5..18b4a79 100644
 --- a/src/stacktrace.cc
 +++ b/src/stacktrace.cc
 @@ -52,6 +52,7 @@
@@ -259,7 +260,7 @@ index d158eea..e8509fe 100644
  #include <config.h>
  #include <google/stacktrace.h>
  #include "stacktrace_config.h"
-@@ -69,3 +70,4 @@
+@@ -108,3 +109,4 @@
  #else
  # error Cannot calculate stack trace: will need to write for your environment
  #endif

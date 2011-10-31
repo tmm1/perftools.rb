@@ -1,5 +1,5 @@
 diff --git a/src/profiledata.h b/src/profiledata.h
-index ccdf96f..0517614 100644
+index 1b3eb2e..0d81603 100644
 --- a/src/profiledata.h
 +++ b/src/profiledata.h
 @@ -106,7 +106,7 @@ class ProfileData {

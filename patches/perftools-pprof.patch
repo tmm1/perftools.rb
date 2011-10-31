@@ -1,14 +1,8 @@
-commit 1828f461a3ea523b7018d03ab83850621cf66ba9
-Author: Aman Gupta <aman@tmm1.net>
-Date:   Fri Nov 12 16:33:15 2010 -0600
-
-    perftools-pprof
-
 diff --git a/src/pprof b/src/pprof
-index e67e42e..b04d988 100755
+index dbe71a4..e300f22 100755
 --- a/src/pprof
 +++ b/src/pprof
-@@ -560,7 +560,8 @@ sub Main() {
+@@ -575,7 +575,8 @@ sub Main() {
    my $symbol_map = {};
  
    # Read one profile, pick the last item on the list
@@ -18,7 +12,7 @@ index e67e42e..b04d988 100755
    my $profile = $data->{profile};
    my $pcs = $data->{pcs};
    my $libs = $data->{libs};   # Info about main program and shared libraries
-@@ -589,7 +590,18 @@ sub Main() {
+@@ -604,7 +605,18 @@ sub Main() {
  
    # Collect symbols
    my $symbols;
@@ -38,7 +32,7 @@ index e67e42e..b04d988 100755
      $symbols = FetchSymbols($pcs, $symbol_map);
    } elsif ($main::use_symbol_page) {
      $symbols = FetchSymbols($pcs);
-@@ -2425,6 +2437,10 @@ sub RemoveUninterestingFrames {
+@@ -2790,6 +2802,10 @@ sub RemoveUninterestingFrames {
      foreach my $name ('ProfileData::Add',           # historical
                        'ProfileData::prof_handler',  # historical
                        'CpuProfiler::prof_handler',
@@ -49,7 +43,7 @@ index e67e42e..b04d988 100755
                        '__FRAME_END__',
                        '__pthread_sighandler',
                        '__restore') {
-@@ -2434,6 +2450,7 @@ sub RemoveUninterestingFrames {
+@@ -2799,6 +2815,7 @@ sub RemoveUninterestingFrames {
      # Nothing skipped for unknown types
    }
  
@@ -57,7 +51,7 @@ index e67e42e..b04d988 100755
    if ($main::profile_type eq 'cpu') {
      # If all the second-youngest program counters are the same,
      # this STRONGLY suggests that it is an artifact of measurement,
-@@ -2458,6 +2475,7 @@ sub RemoveUninterestingFrames {
+@@ -2823,6 +2840,7 @@ sub RemoveUninterestingFrames {
        $profile = $result;
      }
    }
@@ -65,7 +59,7 @@ index e67e42e..b04d988 100755
  
    my $result = {};
    foreach my $k (keys(%{$profile})) {
-@@ -3360,7 +3378,7 @@ sub ReadCPUProfile {
+@@ -3749,7 +3767,7 @@ sub ReadCPUProfile {
        # file, in which case the subtract-one was done when the file
        # was written.
        if ($j > 0 && !$main::use_symbolized_profile) {

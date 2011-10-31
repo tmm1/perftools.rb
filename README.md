@@ -123,7 +123,7 @@ The sampling interval of the profiler can be adjusted to collect more
   You'll also need graphviz to generate call graphs using dot:
 
     sudo brew    install graphviz ghostscript # osx
-    sudo apt-get install graphviz ps2pdf      # debian/ubuntu
+    sudo apt-get install graphviz ghostscript # debian/ubuntu
 
   If graphviz fails to build on OSX Lion, you may need to recompile libgd, [see here](https://github.com/mxcl/homebrew/issues/6645#issuecomment-1806807)
 
@@ -140,9 +140,9 @@ The sampling interval of the profiler can be adjusted to collect more
 
   Download:
 
-    wget http://google-perftools.googlecode.com/files/google-perftools-1.6.tar.gz
-    tar zxvf google-perftools-1.6.tar.gz
-    cd google-perftools-1.6
+    wget http://google-perftools.googlecode.com/files/google-perftools-1.8.3.tar.gz
+    tar zxvf google-perftools-1.8.3.tar.gz
+    cd google-perftools-1.8.3
 
   Compile:
 
