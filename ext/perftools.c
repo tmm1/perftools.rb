@@ -123,6 +123,10 @@ static VALUE Isend;
   #include <vm_core.h>
   #include <iseq.h>
 
+  #ifdef RUBY193
+    #define ruby_current_thread ((rb_thread_t *)RTYPEDDATA_DATA(rb_thread_current()))
+  #endif
+
   int
   rb_stack_trace(void** result, int max_depth)
   {
