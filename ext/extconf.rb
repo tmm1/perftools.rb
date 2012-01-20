@@ -90,7 +90,10 @@ when /darwin/, /linux/, /freebsd/
 end
 
 if RUBY_VERSION >= "1.9"
+  major, minor, patch = RUBY_VERSION.split('.').map!(&:to_i)
+
   add_define 'RUBY19'
+  add_define 'RUBY193' if patch >= 3
 
   hdrs = proc {
     have_header("method.h") # exists on 1.9.2
