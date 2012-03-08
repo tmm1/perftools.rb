@@ -1,8 +1,10 @@
 # perftools.rb
 
-    google-perftools for ruby code
-    (c) 2010 Aman Gupta (tmm1)
+    gperftools for ruby code
+    (c) 2012 Aman Gupta (tmm1)
     http://www.ruby-lang.org/en/LICENSE.txt
+
+    gperftools (formerly known as google-perftools): http://gperftools.googlecode.com
 
 ## Usage (in a webapp)
 
@@ -81,7 +83,7 @@ The sampling interval of the profiler can be adjusted to collect more
     pprof.rb --text --ignore=Gem /tmp/my_app_profile
 
 
-  For more options, see [pprof documentation](http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html#pprof)
+  For more options, see [pprof documentation](http://gperftools.googlecode.com/svn/trunk/doc/cpuprofile.html#pprof)
 
 
 ### Examples
@@ -108,7 +110,7 @@ The sampling interval of the profiler can be adjusted to collect more
 
 ## Installation
 
-  Just install the gem, which will download, patch and compile google-perftools for you:
+  Just install the gem, which will download, patch and compile gperftools for you:
 
     sudo gem install perftools.rb
 
@@ -119,6 +121,9 @@ The sampling interval of the profiler can be adjusted to collect more
     gem build perftools.rb.gemspec
     gem install perftools.rb
 
+  Use via a Gemfile:
+
+    gem 'perftools.rb', :git => 'git://github.com/tmm1/perftools.rb.git'
 
   You'll also need graphviz to generate call graphs using dot:
 
@@ -140,9 +145,9 @@ The sampling interval of the profiler can be adjusted to collect more
 
   Download:
 
-    wget http://google-perftools.googlecode.com/files/google-perftools-1.6.tar.gz
-    tar zxvf google-perftools-1.6.tar.gz
-    cd google-perftools-1.6
+    wget http://gperftools.googlecode.com/files/gperftools-2.0.tar.gz
+    tar zxvf gperftools-2.0.tar.gz
+    cd gperftools-2.0
 
   Compile:
 
@@ -174,6 +179,6 @@ The sampling interval of the profiler can be adjusted to collect more
 
   * [Ilya Grigorik's introduction to perftools.rb](http://www.igvita.com/2009/06/13/profiling-ruby-with-googles-perftools/)
 
-  * [Google Perftools](http://code.google.com/p/google-perftools/)
+  * [Google Perftools](http://code.google.com/p/gperftools/)
 
-  * [Analyzing profiles and interpreting different output formats](http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html#pprof)
+  * [Analyzing profiles and interpreting different output formats](http://gperftools.googlecode.com/svn/trunk/doc/cpuprofile.html#pprof)
