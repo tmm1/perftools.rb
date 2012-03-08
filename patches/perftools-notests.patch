@@ -1,15 +1,33 @@
 diff --git a/Makefile.in b/Makefile.in
-index b301f4d..969db5e 100644
+index be6bce7..423baba 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -65,9 +65,7 @@ host_triplet = @host@
- @ENABLE_FRAME_POINTERS_TRUE@@X86_64_AND_NO_FP_BY_DEFAULT_TRUE@am__append_3 = -fno-omit-frame-pointer
- @ENABLE_FRAME_POINTERS_FALSE@@X86_64_AND_NO_FP_BY_DEFAULT_TRUE@am__append_4 = -DNO_FRAME_POINTER
- @MINGW_TRUE@am__append_5 = -Wl,-u__tcmalloc
+@@ -66,26 +66,8 @@ host_triplet = @host@
+ @ENABLE_FRAME_POINTERS_TRUE@@X86_64_AND_NO_FP_BY_DEFAULT_TRUE@am__append_5 = -fno-omit-frame-pointer
+ @ENABLE_FRAME_POINTERS_FALSE@@X86_64_AND_NO_FP_BY_DEFAULT_TRUE@am__append_6 = -DNO_FRAME_POINTER
+ @MINGW_TRUE@am__append_7 = -Wl,-u__tcmalloc
+-TESTS = low_level_alloc_unittest$(EXEEXT) atomicops_unittest$(EXEEXT) \
+-	$(am__EXEEXT_9) tcmalloc_minimal_unittest$(EXEEXT) \
+-	tcmalloc_minimal_large_unittest$(EXEEXT) $(am__append_17) \
+-	addressmap_unittest$(EXEEXT) $(am__EXEEXT_10) \
+-	packed_cache_test$(EXEEXT) frag_unittest$(EXEEXT) \
+-	markidle_unittest$(EXEEXT) \
+-	current_allocated_bytes_test$(EXEEXT) \
+-	malloc_hook_test$(EXEEXT) malloc_extension_test$(EXEEXT) \
+-	$(am__EXEEXT_11) $(am__EXEEXT_12) page_heap_test$(EXEEXT) \
+-	pagemap_unittest$(EXEEXT) realloc_unittest$(EXEEXT) \
+-	stack_trace_table_test$(EXEEXT) \
+-	thread_dealloc_unittest$(EXEEXT) $(am__EXEEXT_13) \
+-	$(am__EXEEXT_14) $(am__EXEEXT_15) $(am__append_29) \
+-	$(am__EXEEXT_16) $(am__EXEEXT_17) $(am__EXEEXT_18) \
+-	$(am__EXEEXT_19) $(am__append_49) $(am__EXEEXT_20) \
+-	$(am__append_58) $(am__append_60) $(am__EXEEXT_21) \
+-	$(am__EXEEXT_22)
 -noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 -	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6) \
 -	$(am__EXEEXT_7) $(am__EXEEXT_8) $(am__EXEEXT_23)
++TESTS =
 +noinst_PROGRAMS =
  bin_PROGRAMS =
- @MINGW_TRUE@am__append_6 = libwindows.la libspinlock.la
+ @MINGW_TRUE@am__append_8 = libwindows.la libspinlock.la
  
