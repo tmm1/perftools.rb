@@ -51,7 +51,8 @@ Dir.chdir('src') do
       ['perftools-osx', false], # fixed in 2.0
       ['perftools-debug', true],
       ['perftools-objects', true],
-      ['perftools-frames', true]
+      ['perftools-frames', true],
+      ['perftools-stddef', true]
     ].each do |patch, apply|
       if apply
         sys("patch -p1 < ../../../patches/#{patch}.patch")
