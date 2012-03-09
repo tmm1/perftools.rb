@@ -3,7 +3,7 @@ CWD = File.expand_path(File.dirname(__FILE__))
 def sys(cmd)
   puts "  -- #{cmd}"
   unless ret = xsystem(cmd)
-    raise "#{cmd} failed, please report to https://github.com/tmm1/perfools.rb/issues/new with #{CWD}/mkmf.log and #{CWD}/src/gperftools-2.0/config.log"
+    raise "#{cmd} failed, please report to https://github.com/tmm1/perfools.rb/issues/new with #{CWD}/src/mkmf.log and #{CWD}/src/gperftools-2.0/config.log"
   end
   ret
 end
