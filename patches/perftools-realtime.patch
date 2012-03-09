@@ -1,0 +1,22 @@
+commit 2c428e120733fdbf4ae2399046d9d63e6845b18d
+Author: Aman Gupta <aman@tmm1.net>
+Date:   Thu Mar 8 22:39:12 2012 -0800
+
+    perftools-realtime
+
+diff --git a/src/profile-handler.cc b/src/profile-handler.cc
+index dfc8cf4..567ca45 100644
+--- a/src/profile-handler.cc
++++ b/src/profile-handler.cc
+@@ -491,6 +491,11 @@ bool ProfileHandler::IsSignalHandlerAvailable() {
+   const int signal_number = (timer_type_ == ITIMER_PROF ? SIGPROF : SIGALRM);
+   RAW_CHECK(sigaction(signal_number, NULL, &sa) == 0, "is-signal-handler avail");
+ 
++#ifdef BUILD_FOR_RUBY
++  // Inside ruby, there's a default signal handler set for SIGALRM.
++  return true;
++#endif
++
+   // We only take over the handler if the current one is unset.
+   // It must be SIG_IGN or SIG_DFL, not some other function.
+   // SIG_IGN must be allowed because when profiling is allowed but
