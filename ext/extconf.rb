@@ -52,7 +52,8 @@ Dir.chdir('src') do
       ['perftools-debug', true],
       ['perftools-objects', true],
       ['perftools-frames', true],
-      ['perftools-realtime', true]
+      ['perftools-realtime', true],
+      ['perftools-pause', true]
     ].each do |patch, apply|
       if apply
         sys("patch -p1 < ../../../patches/#{patch}.patch")

@@ -1,0 +1,42 @@
+diff --git a/src/gperftools/profiler.h b/src/gperftools/profiler.h
+index 7971e04..5093604 100644
+--- a/src/gperftools/profiler.h
++++ b/src/gperftools/profiler.h
+@@ -138,6 +138,8 @@ PERFTOOLS_DLL_DECL void ProfilerStop();
+  */
+ PERFTOOLS_DLL_DECL void ProfilerFlush();
+ 
++PERFTOOLS_DLL_DECL void ProfilerPause();
++PERFTOOLS_DLL_DECL void ProfilerResume();
+ 
+ /* DEPRECATED: these functions were used to enable/disable profiling
+  * in the current thread, but no longer do anything.
+diff --git a/src/profiler.cc b/src/profiler.cc
+index 2f1af06..7c404c3 100644
+--- a/src/profiler.cc
++++ b/src/profiler.cc
+@@ -129,6 +129,7 @@ class CpuProfiler {
+   // ProfileHandlerUnregisterCallback.
+   ProfileHandlerToken* prof_handler_token_;
+ 
++ public:
+   // Sets up a callback to receive SIGPROF interrupt.
+   void EnableHandler();
+ 
+@@ -346,6 +347,16 @@ extern "C" PERFTOOLS_DLL_DECL void ProfilerStop() {
+   CpuProfiler::instance_.Stop();
+ }
+ 
++#ifdef BUILD_FOR_RUBY
++extern "C" PERFTOOLS_DLL_DECL void ProfilerPause() {
++  CpuProfiler::instance_.DisableHandler();
++}
++
++extern "C" PERFTOOLS_DLL_DECL void ProfilerResume() {
++  CpuProfiler::instance_.EnableHandler();
++}
++#endif
++
+ extern "C" PERFTOOLS_DLL_DECL void ProfilerGetCurrentState(
+     ProfilerState* state) {
+   CpuProfiler::instance_.GetCurrentState(state);

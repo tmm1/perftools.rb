@@ -14,6 +14,8 @@ void ProfilerGcMark(void (*cb)(VALUE));
 int  ProfilerStart(const char*);
 void ProfilerStop();
 void ProfilerFlush();
+void ProfilerPause();
+void ProfilerResume();
 void ProfilerRecord(int, void*, void*);
 int  ProfilingIsEnabledForAllThreads();
 
@@ -228,12 +230,47 @@ static VALUE cPerfTools;
 static VALUE cCpuProfiler;
 static VALUE eError;
 static VALUE bProfilerRunning;
+static VALUE bProfilerPaused;
 static VALUE gc_hook;
+
+static VALUE
+cpuprofiler_paused_p(VALUE self)
+{
+  return bProfilerPaused;
+}
 
 static VALUE
 cpuprofiler_running_p(VALUE self)
 {
   return bProfilerRunning;
+}
+
+static VALUE
+cpuprofiler_pause(VALUE self)
+{
+  if (!bProfilerRunning)
+    return Qfalse;
+  if (bProfilerPaused)
+    return Qfalse;
+
+  bProfilerPaused = Qtrue;
+  ProfilerPause();
+
+  return Qtrue;
+}
+
+static VALUE
+cpuprofiler_resume(VALUE self)
+{
+  if (!bProfilerRunning)
+    return Qfalse;
+  if (!bProfilerPaused)
+    return Qfalse;
+
+  bProfilerPaused = Qfalse;
+  ProfilerResume();
+
+  return Qtrue;
 }
 
 static VALUE
@@ -476,10 +513,14 @@ Init_perftools()
   Isend = rb_intern("send");
 
   bMethProfilerRunning = bObjProfilerRunning = bProfilerRunning = Qfalse;
+  bProfilerPaused = Qfalse;
 
   rb_define_singleton_method(cCpuProfiler, "running?", cpuprofiler_running_p, 0);
   rb_define_singleton_method(cCpuProfiler, "start", cpuprofiler_start, 1);
   rb_define_singleton_method(cCpuProfiler, "stop", cpuprofiler_stop, 0);
+  rb_define_singleton_method(cCpuProfiler, "paused?", cpuprofiler_paused_p, 0);
+  rb_define_singleton_method(cCpuProfiler, "pause", cpuprofiler_pause, 0);
+  rb_define_singleton_method(cCpuProfiler, "resume", cpuprofiler_resume, 0);
 
   gc_hook = Data_Wrap_Struct(cCpuProfiler, cpuprofiler_gc_mark, NULL, NULL);
   rb_global_variable(&gc_hook);
