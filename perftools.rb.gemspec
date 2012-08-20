@@ -2,8 +2,8 @@ spec = Gem::Specification.new do |s|
   s.name = 'perftools.rb'
   s.version = '2.0.0'
   s.rubyforge_project = 'perftools-rb'
-  s.summary = 'google-perftools for ruby code'
-  s.description = 'A sampling profiler for ruby code based on patches to google-perftools'
+  s.summary = 'gperftools for ruby code'
+  s.description = 'A sampling profiler for ruby code based on patches to gperftools'
 
   s.homepage = "http://github.com/tmm1/perftools.rb"
 
