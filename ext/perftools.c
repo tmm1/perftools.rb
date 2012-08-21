@@ -282,6 +282,7 @@ cpuprofiler_stop(VALUE self)
   bProfilerRunning = Qfalse;
   objprofiler_teardown();
   methprofiler_teardown();
+  cpuprofiler_resume(self);
   ProfilerStop();
   ProfilerFlush();
 
