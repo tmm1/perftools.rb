@@ -278,7 +278,11 @@ cpuprofiler_flush(VALUE self)
 {
   if (!bProfilerRunning)
     return Qfalse;
+  if (bProfilerPaused)
+    ProfilerResume();
   ProfilerFlush();
+  if (bProfilerPaused)
+    ProfilerPause();
   return Qtrue;
 }
 
