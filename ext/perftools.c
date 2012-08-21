@@ -291,11 +291,15 @@ cpuprofiler_stop(VALUE self)
 {
   if (!bProfilerRunning)
     return Qfalse;
-
   bProfilerRunning = Qfalse;
+
   objprofiler_teardown();
   methprofiler_teardown();
-  cpuprofiler_resume(self);
+
+  if (bProfilerPaused)
+    ProfilerResume();
+  bProfilerPaused = Qfalse;
+
   ProfilerStop();
   ProfilerFlush();
 
