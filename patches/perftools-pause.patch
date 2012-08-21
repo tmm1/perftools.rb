@@ -40,3 +40,19 @@ index 2f1af06..7c404c3 100644
  extern "C" PERFTOOLS_DLL_DECL void ProfilerGetCurrentState(
      ProfilerState* state) {
    CpuProfiler::instance_.GetCurrentState(state);
+diff --git a/src/profiler.cc b/src/profiler.cc
+index 7c404c3..735a885 100644
+--- a/src/profiler.cc
++++ b/src/profiler.cc
+@@ -268,8 +268,9 @@ void CpuProfiler::EnableHandler() {
+ }
+ 
+ void CpuProfiler::DisableHandler() {
+-  RAW_CHECK(prof_handler_token_ != NULL, "SIGPROF handler is not registered");
+-  ProfileHandlerUnregisterCallback(prof_handler_token_);
++  //RAW_CHECK(prof_handler_token_ != NULL, "SIGPROF handler is not registered");
++  if (prof_handler_token_ != NULL)
++    ProfileHandlerUnregisterCallback(prof_handler_token_);
+   prof_handler_token_ = NULL;
+ }
+ 
