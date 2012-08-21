@@ -274,6 +274,15 @@ cpuprofiler_resume(VALUE self)
 }
 
 static VALUE
+cpuprofiler_flush(VALUE self)
+{
+  if (!bProfilerRunning)
+    return Qfalse;
+  ProfilerFlush();
+  return Qtrue;
+}
+
+static VALUE
 cpuprofiler_stop(VALUE self)
 {
   if (!bProfilerRunning)
@@ -522,6 +531,7 @@ Init_perftools()
   rb_define_singleton_method(cCpuProfiler, "paused?", cpuprofiler_paused_p, 0);
   rb_define_singleton_method(cCpuProfiler, "pause", cpuprofiler_pause, 0);
   rb_define_singleton_method(cCpuProfiler, "resume", cpuprofiler_resume, 0);
+  rb_define_singleton_method(cCpuProfiler, "flush", cpuprofiler_flush, 0);
 
   gc_hook = Data_Wrap_Struct(cCpuProfiler, cpuprofiler_gc_mark, NULL, NULL);
   rb_global_variable(&gc_hook);
