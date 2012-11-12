@@ -17,4 +17,8 @@ spec = Gem::Specification.new do |s|
 
   # ruby -rpp -e' pp `git ls-files | grep -v examples`.split("\n").sort '
   s.files = `git ls-files`.split("\n").reject{ |f| f =~ /^examples/ }
+
+  if RUBY_VERSION >= '1.9'
+    s.add_dependency('debugger-ruby_core_source')
+  end
 end

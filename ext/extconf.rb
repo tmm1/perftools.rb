@@ -12,19 +12,7 @@ require 'mkmf'
 require 'fileutils'
 
 if RUBY_VERSION >= "1.9"
-  begin
-    require "ruby_core_source"
-  rescue LoadError
-    require 'rubygems/user_interaction' # for 1.9.1
-    require 'rubygems/dependency_installer'
-    installer = Gem::DependencyInstaller.new
-    installer.install 'ruby_core_source'
-
-    Gem.refresh
-    Gem.activate('ruby_core_source') # for 1.9.1
-
-    require "ruby_core_source"
-  end
+  require "debugger/ruby_core_source"
 end
 
 perftools = File.basename('gperftools-2.0.tar.gz')
@@ -102,10 +90,10 @@ if RUBY_VERSION >= "1.9"
     have_header("insns_info.inc")
   }
 
-  unless Ruby_core_source::create_makefile_with_core(hdrs, "perftools")
+  unless Debugger::RubyCoreSource::create_makefile_with_core(hdrs, "perftools")
     STDERR.puts "\n\n"
     STDERR.puts "***************************************************************************************"
-    STDERR.puts "********************** Ruby_core_source::create_makefile FAILED ***********************"
+    STDERR.puts "********************** Debugger::RubyCoreSource::create_makefile FAILED ***********************"
     STDERR.puts "***************************************************************************************"
     exit(1)
   end
