@@ -21,7 +21,11 @@ if RUBY_VERSION >= "1.9"
     installer.install 'debugger-ruby_core_source'
 
     Gem.refresh
-    Gem.activate('debugger-ruby_core_source') # for 1.9.1
+    if Gem.method_defined? :activate
+      Gem.activate('debugger-ruby_core_source') # for 1.9.1
+    else
+      Gem::Specification.find_by_name('debugger-ruby_core_source').activate
+    end
 
     require "debugger/ruby_core_source"
   end
