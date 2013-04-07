@@ -23,6 +23,10 @@ static VALUE Iallocate;
 static VALUE I__send__;
 static VALUE Isend;
 
+#ifndef ID_ALLOCATOR
+#define ID_ALLOCATOR Iallocate
+#endif
+
 #define SAVE_FRAME() \
   if (method && method != I__send__ && method != Isend) { \
     if (self && FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) \
@@ -125,15 +129,25 @@ static VALUE Isend;
   #include <vm_core.h>
   #include <iseq.h>
 
-// Fix compile error in ruby 1.9.3
+// Fix compile error in ruby 1.9.3 and 2.0.0
 #ifdef RTYPEDDATA_DATA
-#define ruby_current_thread ((rb_thread_t *)RTYPEDDATA_DATA(rb_thread_current()))
+  #if GET_THREAD
+    #define ruby_current_thread ((rb_thread_t *)RTYPEDDATA_DATA(rb_thread_current()))
+    #define GET_THREAD2 GET_THREAD
+  #else
+    rb_thread_t *ruby_current_thread;
+    rb_thread_t *GET_THREAD2(void)
+    {
+      ruby_current_thread = ((rb_thread_t *)RTYPEDDATA_DATA(rb_thread_current()));
+      return GET_THREAD();
+    }
+  #endif 
 #endif
 
   int
   rb_stack_trace(void** result, int max_depth)
   {
-    rb_thread_t *th = GET_THREAD();
+    rb_thread_t *th = GET_THREAD2();
     rb_control_frame_t *cfp = th->cfp;
     rb_control_frame_t *end_cfp = RUBY_VM_END_CONTROL_FRAME(th);
 
@@ -190,7 +204,7 @@ static VALUE Isend;
   void
   rb_dump_stack()
   {
-    rb_thread_t *th = GET_THREAD();
+    rb_thread_t *th = GET_THREAD2();
     rb_control_frame_t *cfp = th->cfp;
     rb_control_frame_t *end_cfp = RUBY_VM_END_CONTROL_FRAME(th);
     ID func;
