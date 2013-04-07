@@ -23,6 +23,10 @@ static VALUE Iallocate;
 static VALUE I__send__;
 static VALUE Isend;
 
+#ifndef ID_ALLOCATOR
+#define ID_ALLOCATOR Iallocate
+#endif
+
 #define SAVE_FRAME() \
   if (method && method != I__send__ && method != Isend) { \
     if (self && FL_TEST(klass, FL_SINGLETON) && (BUILTIN_TYPE(self) == T_CLASS || BUILTIN_TYPE(self) == T_MODULE)) \
