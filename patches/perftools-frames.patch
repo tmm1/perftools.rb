@@ -7,7 +7,7 @@ index ccdf96f..0517614 100644
    };
  
 -  static const int kMaxStackDepth = 64;  // Max stack depth stored in profile
-+  static const int kMaxStackDepth = 300;  // Max stack depth stored in profile
++  static const int kMaxStackDepth = 1100;  // Max stack depth stored in profile
  
    ProfileData();
    ~ProfileData();
