@@ -38,6 +38,12 @@ static VALUE Isend;
     result[depth++] = (void*) (method == ID_ALLOCATOR ? Iallocate : method); \
   }
 
+#ifdef HAVE_RB_NEWOBJ_OF
+  #define NEWOBJ_FUNC rb_newobj_of
+#else
+  #define NEWOBJ_FUNC rb_newobj
+#endif
+
 #ifdef RUBY18
   #include <env.h>
   #include <node.h>
@@ -492,11 +498,11 @@ objprofiler_setup()
   sigemptyset(&sig.sa_mask);
   sigaction(SIGTRAP, &sig, NULL);
 
-  unprotect_page((char*)rb_newobj);
+  unprotect_page((char*)NEWOBJ_FUNC);
 
   for (i=0; i<NUM_ORIG_BYTES; i++) {
-    orig_bytes[i].location = (char *)rb_newobj + i;
-    orig_bytes[i].value    = ((unsigned char*)rb_newobj)[i];
+    orig_bytes[i].location = (char *)NEWOBJ_FUNC + i;
+    orig_bytes[i].value    = ((unsigned char*)NEWOBJ_FUNC)[i];
     orig_bytes[i].location[0] = '\xCC';
   }
 
