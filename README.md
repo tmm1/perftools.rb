@@ -96,15 +96,15 @@ The sampling interval of the profiler can be adjusted to collect more
 
 #### pprof.rb --gif
 
-  * Simple [require 'rubygems'](http://perftools-rb.rubyforge.org/examples/rubygems.gif) profile
+  * Simple [require 'rubygems'](https://raw.github.com/tmm1/perftools.rb/master/examples/rubygems.gif) profile
 
-  * Comparing redis-rb [with](http://perftools-rb.rubyforge.org/examples/redis-rb.gif) and [without](http://perftools-rb.rubyforge.org/examples/redis-rb-notimeout.gif) SystemTimer based socket timeouts
+  * Comparing redis-rb [with](https://raw.github.com/tmm1/perftools.rb/master/examples/redis-rb.gif) and [without](https://raw.github.com/tmm1/perftools.rb/master/examples/redis-rb-notimeout.gif) SystemTimer based socket timeouts
 
-  * [Sinatra](http://perftools-rb.rubyforge.org/examples/sinatra.gif) vs. [Merb](http://perftools-rb.rubyforge.org/examples/merb.gif) vs. [Rails](http://perftools-rb.rubyforge.org/examples/rails.gif)
+  * [Sinatra](https://raw.github.com/tmm1/perftools.rb/master/examples/sinatra.gif) vs. [Merb](https://raw.github.com/tmm1/perftools.rb/master/examples/merb.gif) vs. [Rails](https://raw.github.com/tmm1/perftools.rb/master/examples/rails.gif)
 
-  * C-level profile of EventMachine + epoll + Ruby threads [before](http://perftools-rb.rubyforge.org/examples/eventmachine-epoll+nothreads.gif) and [after](http://perftools-rb.rubyforge.org/examples/eventmachine-epoll+threads.gif) a [6 line EM bugfix](http://timetobleed.com/6-line-eventmachine-bugfix-2x-faster-gc-1300-requestssec/)
+  * C-level profile of EventMachine + epoll + Ruby threads [before](https://raw.github.com/tmm1/perftools.rb/master/examples/eventmachine-epoll+nothreads.gif) and [after](https://raw.github.com/tmm1/perftools.rb/master/examples/eventmachine-epoll+threads.gif) a [6 line EM bugfix](http://timetobleed.com/6-line-eventmachine-bugfix-2x-faster-gc-1300-requestssec/)
 
-  * C-level profile of a [ruby/rails vm](http://perftools-rb.rubyforge.org/examples/ruby_interpreter.gif)
+  * C-level profile of a [ruby/rails vm](https://raw.github.com/tmm1/perftools.rb/master/examples/ruby_interpreter.gif)
     * 12% time spent in re_match_exec because of excessive calls to rb_str_sub_bang by Date.parse
 
 
