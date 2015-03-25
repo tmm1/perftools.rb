@@ -10,8 +10,19 @@ end
 
 require 'mkmf'
 require 'fileutils'
+if RUBY_VERSION > "2.1"
+  begin
+    require 'debase/ruby_core_source'
+  rescue LoadError
+    require 'rubygems/dependency_installer'
+    installer = Gem::DependencyInstaller.new
+    installer.install 'debase-ruby_core_source'
 
-if RUBY_VERSION >= "1.9"
+    Gem.refresh
+    Gem::Specification.find_by_name('debase-ruby_core_source').activate
+    require 'debase/ruby_core_source'
+  end
+elsif RUBY_VERSION >= "1.9"
   begin
     require "debugger/ruby_core_source"
   rescue LoadError
@@ -110,7 +121,9 @@ if RUBY_VERSION >= "1.9"
     have_header("insns_info.inc")
   }
 
-  unless Debugger::RubyCoreSource::create_makefile_with_core(hdrs, "perftools")
+  core_source = Debugger rescue Debase
+
+  unless core_source::RubyCoreSource::create_makefile_with_core(hdrs, "perftools")
     STDERR.puts "\n\n"
     STDERR.puts "***************************************************************************************"
     STDERR.puts "****************** Debugger::RubyCoreSource::create_makefile FAILED *******************"
