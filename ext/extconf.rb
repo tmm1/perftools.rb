@@ -10,7 +10,7 @@ end
 
 require 'mkmf'
 require 'fileutils'
-if RUBY_VERSION > "2.1"
+if RUBY_VERSION > "1.9"
   begin
     require 'debase/ruby_core_source'
   rescue LoadError
@@ -22,7 +22,7 @@ if RUBY_VERSION > "2.1"
     Gem::Specification.find_by_name('debase-ruby_core_source').activate
     require 'debase/ruby_core_source'
   end
-elsif RUBY_VERSION >= "1.9"
+else
   begin
     require "debugger/ruby_core_source"
   rescue LoadError
