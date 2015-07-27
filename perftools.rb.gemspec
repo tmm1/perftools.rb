@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name = 'perftools.rb'
-  s.version = '2.0.3'
+  s.version = '2.0.4'
   s.rubyforge_project = 'perftools-rb'
   s.summary = 'gperftools for ruby code'
   s.description = 'A sampling profiler for ruby code based on patches to gperftools'

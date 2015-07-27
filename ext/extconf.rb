@@ -10,7 +10,7 @@ end
 
 require 'mkmf'
 require 'fileutils'
-if RUBY_VERSION > "1.9"
+if RUBY_VERSION > "1.9.3"
   begin
     require 'debase/ruby_core_source'
   rescue LoadError
