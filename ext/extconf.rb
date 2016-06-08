@@ -116,7 +116,7 @@ if RUBY_VERSION >= "1.9"
   hdrs = proc {
     have_header("method.h") # exists on 1.9.2
     have_header("vm_core.h") and
-    have_header("iseq.h") and
+    (have_header("iseq.h") or have_header("iseq.h", ["vm_core.h"])) and
     have_header("insns.inc") and
     have_header("insns_info.inc")
   }
