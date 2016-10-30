@@ -17,4 +17,6 @@ spec = Gem::Specification.new do |s|
 
   # ruby -rpp -e' pp `git ls-files | grep -v examples`.split("\n").sort '
   s.files = `git ls-files`.split("\n").reject{ |f| f =~ /^examples/ }
+  
+  s.add_dependency "debase-ruby_core_source"
 end
