@@ -145,9 +145,9 @@ The sampling interval of the profiler can be adjusted to collect more
 
   Download:
 
-    wget http://gperftools.googlecode.com/files/gperftools-2.0.tar.gz
-    tar zxvf gperftools-2.0.tar.gz
-    cd gperftools-2.0
+    wget https://github.com/gperftools/gperftools/releases/download/gperftools-2.8/gperftools-2.8.tar.gz
+    tar zxvf gperftools-*.tar.gz
+    cd gperftools-*
 
   Compile:
 
