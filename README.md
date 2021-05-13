@@ -175,7 +175,7 @@ The sampling interval of the profiler can be adjusted to collect more
 
 ## Resources
 
-  * [GoRuCo 2009 Lightning Talk on perftools.rb](http://goruco2009.confreaks.com/30-may-2009-18-35-rejectconf-various-presenters.html) @ 21:52
+  * [GoRuCo 2009 Lightning Talk on perftools.rb](http://confreaks.tv/videos/goruco2009-rejectconf) @ 21:52
 
   * [Ilya Grigorik's introduction to perftools.rb](http://www.igvita.com/2009/06/13/profiling-ruby-with-googles-perftools/)
 
